@@ -12,7 +12,14 @@ load_dotenv()
 class SafetyInterviewEngine:
     def __init__(self):
         self.offline_engine = OfflineEngine()
-        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+        
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            print("CRITICAL: GEMINI_API_KEY is missing from environment variables.")
+        else:
+            print(f"GEMINI_API_KEY found (starts with: {api_key[:4]}...). Connecting to AI...")
+            
+        genai.configure(api_key=api_key)
         
         # Robust Dynamic Model Discovery (Reused from FAANG Mock)
         try:
@@ -90,7 +97,9 @@ GOAL: Conduct a rigorous ISO 26262 confirmation review.
         try:
             return self._generate_with_retry(run_chat)
         except Exception as e:
-            print(f"API Error: {e}. Switching to Static Auditor.")
+            print(f"\n[API FAILURE] Could not generate response with AI.")
+            print(f"ERROR DETAILS: {str(e)}")
+            print("Action: Falling back to OfflineEngine (Static Mode).\n")
             return self.offline_engine.get_interviewer_response(session, user_input)
 
     def evaluate_audit(self, session: CandidateSession) -> Dict[str, Any]:
