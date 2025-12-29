@@ -1,0 +1,25 @@
+# Functional Safety (ISO 26262) Interviewer - Task List
+
+- [x] **Phase 1: Project Scaffolding**
+    - [x] Initialize project structure (`backend/`, `frontend/`)
+    - [x] Create virtual environment and install dependencies (`fastapi`, `uvicorn`, `google-generativeai`, `python-dotenv`)
+    - [x] Set up `backend/main.py` with robust CORS and Health Checks
+- [x] **Phase 2: Core Safety Engine (The "Assessor")**
+    - [x] Implement `backend/personas.py` with "Safety Assessor" logic (HARA, FMEDA, SOTIF focus)
+    - [x] Create `backend/engine.py` with the Hybrid Logic (API First -> Static Fallback)
+    - [x] Implement `backend/offline_engine.py` with static ISO 26262 question bank
+- [x] **Phase 3: Domain-Specific Logic**
+    - [x] Implement Level-specific gating (L3 vs L4 vs L5)
+    - [x] Add "Shadow Auditor" prompts (Hidden tips about CCF, MRC, ASIL Decomposition)
+    - [x] Create "Technical Auditor" grading rubric (ASPICE rigor, Diagnostic Coverage)
+- [x] **Phase 4: Frontend "Artifacts Panel"**
+    - [x] Adapt frontend to include a "SysML/UML" diagram request panel
+    - [x] Style UI with an "Automotive/Industrial" aesthetic (Clean, Blue/Grey, Safety-critical vibe)
+- [x] **Phase 5: Audio Integration (New)**
+    - [x] Implement Web Speech API (STT) for microphone input
+    - [x] Implement Speech Synthesis (TTS) for Auditor voice response
+    - [x] Add "Voice Toggles" to UI (Mic/Speaker control)
+- [x] **Phase 6: Verification & Launch**
+    - [x] Verify API connectivity and Fallback modes (Health Check Passed)
+    - [x] Test "Major Safety Process Gap" flagging logic (Integrated in Engine)
+    - [x] Final Deployment prep (Server running on Port 8001)
