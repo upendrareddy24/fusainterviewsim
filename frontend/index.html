@@ -31,14 +31,43 @@
         <div id="config-panel" class="panel">
             <h2>Start New Interview Session</h2>
             <div class="form-group">
-                <label>Target Role</label>
-                <select id="roleSelect">
-                    <option value="functional_safety_engineer">Functional Safety Engineer</option>
-                    <option value="systems_engineer">Systems Engineer (V-Model)</option>
-                    <option value="requirements_engineer">Requirements Engineer (DOORS)</option>
-                    <option value="validation_engineer">Validation Engineer (HIL/SIL)</option>
-                    <option value="safety_manager">Functional Safety Manager</option>
-                </select>
+                <label>Select Your Assessor (Marketplace)</label>
+                <!-- Hidden Input to store selection -->
+                <input type="hidden" id="roleSelect" value="safety_assessor">
+
+                <div class="expert-grid">
+                    <!-- Card 1: The Chief Architect -->
+                    <div class="expert-card selected" onclick="selectExpert(this, 'functional_safety_engineer')">
+                        <div class="expert-avatar">🛡️</div>
+                        <div class="expert-role">Chief Architect</div>
+                        <div class="expert-exp">50 Yrs Exp</div>
+                        <div class="expert-tag">Design Defense</div>
+                    </div>
+
+                    <!-- Card 2: Systems Lead -->
+                    <div class="expert-card" onclick="selectExpert(this, 'systems_engineer')">
+                        <div class="expert-avatar">⚙️</div>
+                        <div class="expert-role">Systems Lead</div>
+                        <div class="expert-exp">V-Model Guardian</div>
+                        <div class="expert-tag">SysML & HARA</div>
+                    </div>
+
+                    <!-- Card 3: Requirements Manager -->
+                    <div class="expert-card" onclick="selectExpert(this, 'requirements_engineer')">
+                        <div class="expert-avatar">📋</div>
+                        <div class="expert-role">Reqs Manager</div>
+                        <div class="expert-exp">DOORS Expert</div>
+                        <div class="expert-tag">Traceability</div>
+                    </div>
+
+                    <!-- Card 4: Validation Lead -->
+                    <div class="expert-card" onclick="selectExpert(this, 'validation_engineer')">
+                        <div class="expert-avatar">💥</div>
+                        <div class="expert-role">Validation Head</div>
+                        <div class="expert-exp">Fault Injection</div>
+                        <div class="expert-tag">HIL / SIL</div>
+                    </div>
+                </div>
             </div>
             <div class="form-group">
                 <label>Level</label>

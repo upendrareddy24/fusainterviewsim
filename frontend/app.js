@@ -9,6 +9,16 @@ const userInput = document.getElementById('user-input');
 const micBtn = document.getElementById('mic-btn');
 const speakerBtn = document.getElementById('speaker-btn');
 
+// --- UI LOGIC ---
+function selectExpert(card, roleValue) {
+    // 1. Remove 'selected' class from all cards
+    document.querySelectorAll('.expert-card').forEach(c => c.classList.remove('selected'));
+    // 2. Add to clicked card
+    card.classList.add('selected');
+    // 3. Update hidden input
+    document.getElementById('roleSelect').value = roleValue;
+}
+
 // --- AUDIO CONFIG ---
 let recognition = null;
 let isRecording = false;
@@ -108,6 +118,7 @@ function addMessage(role, content) {
 }
 
 async function startAudit() {
+    // Value is now in the hidden input
     const role = document.getElementById('roleSelect').value;
     const level = document.getElementById('level').value;
     const topic = document.getElementById('topic').value;
