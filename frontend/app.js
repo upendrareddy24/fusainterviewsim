@@ -1,4 +1,4 @@
-const API_BASE = window.location.origin; // Using relative path for robustness
+const API_BASE = window.location.origin;
 
 let sessionId = null;
 
@@ -21,7 +21,7 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
     recognition.continuous = false;
-    recognition.lang = 'en-US';
+    recognition.lang = 'en-US'; // Strict English
     recognition.interimResults = false;
 
     recognition.onstart = () => {
@@ -33,7 +33,7 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     recognition.onend = () => {
         isRecording = false;
         micBtn.classList.remove('recording');
-        userInput.placeholder = "// Describe your safety concept... (or click Mic to speak)";
+        userInput.placeholder = "Type your response here... (or use microphone)";
     };
 
     recognition.onresult = (event) => {
@@ -53,10 +53,10 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
 // Load Voices for TTS
 function loadVoices() {
     const voices = synthesis.getVoices();
-    // Try to find a German or British voice for that "Strict Auditor" vibe
-    auditorVoice = voices.find(v => v.lang === 'de-DE') ||
+    // Prefer Professional English voices (US or UK)
+    auditorVoice = voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) ||
         voices.find(v => v.lang === 'en-GB') ||
-        voices.find(v => v.name.includes('Google Deutsch')) ||
+        voices.find(v => v.lang === 'en-US') ||
         voices[0];
 }
 if (speechSynthesis.onvoiceschanged !== undefined) {
@@ -72,10 +72,16 @@ function toggleMic() {
     }
 }
 
+function stopMic() {
+    if (recognition && isRecording) {
+        recognition.stop();
+    }
+}
+
 function toggleSpeaker() {
     isSpeakerOn = !isSpeakerOn;
     speakerBtn.classList.toggle('active', isSpeakerOn);
-    speakerBtn.innerText = isSpeakerOn ? '🔊' : '🔇';
+    // Visual update logic handled by class toggling in CSS
     if (!isSpeakerOn) synthesis.cancel();
 }
 
@@ -87,17 +93,16 @@ function speakText(text) {
 
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.voice = auditorVoice;
-    utterance.rate = 0.9; // Slightly slower, more deliberate
-    utterance.pitch = 0.9; // Lower pitch, serious tone
+    utterance.rate = 1.0; // Normal rate for professional clear speech
+    utterance.pitch = 1.0; // Normal pitch
     synthesis.speak(utterance);
 }
 
 function addMessage(role, content) {
     const div = document.createElement('div');
     div.className = `message ${role}`;
-    // Industrial formatting
-    const prefix = role === 'interviewer' ? 'AUDITOR: ' : 'ME: ';
-    div.innerText = prefix + content;
+    // No "AUDITOR:" prefix in text, handled by UI design
+    div.innerText = content;
     messageLog.appendChild(div);
     messageLog.scrollTop = messageLog.scrollHeight;
 }
@@ -136,8 +141,7 @@ async function startAudit() {
         speakText(data.interviewer_message);
 
     } catch (e) {
-        addMessage('system', `CRITICAL ERROR: ${e.message}. REVERTING TO OFFLINE PROTOCOLS.`);
-        // Fallback or retry logic could go here
+        addMessage('system', `Error: ${e.message}. Switching to Offline Mode.`);
     }
 }
 
@@ -164,6 +168,6 @@ async function sendResponse() {
         speakText(data.interviewer_message);
 
     } catch (e) {
-        addMessage('system', `LINK LOST: ${e.message}`);
+        addMessage('system', `Connection Lost: ${e.message}`);
     }
 }

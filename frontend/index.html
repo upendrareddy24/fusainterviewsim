@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISO 26262 AUDIT CHAMBER</title>
+    <title>Functional Safety Interviewer</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Share+Tech+Mono&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@500;700&display=swap"
         rel="stylesheet">
 </head>
 
@@ -15,19 +15,23 @@
         <!-- Header -->
         <header class="audit-header">
             <div class="logo">
-                <span class="hazard-icon">⚠️</span> TUV_SIM::AUDIT_CORE
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+                Safety Interview Sim
             </div>
             <div class="status-panel">
-                <span class="status-item">MODE: <span class="blink">ASIL D</span></span>
-                <span class="status-item">CONN: SECURE</span>
+                <span class="status-item">ISO 26262 Compliant</span>
+                <span class="status-item">AI-Powered</span>
             </div>
         </header>
 
         <!-- Configuration Panel -->
         <div id="config-panel" class="panel">
-            <h2>// INITIALIZE AUDIT PARAMETERS</h2>
+            <h2>Start New Interview Session</h2>
             <div class="form-group">
-                <label>TARGET_ROLE</label>
+                <label>Target Role</label>
                 <select id="role">
                     <option value="Safety Assessor">Functional Safety Engineer</option>
                     <option value="Systems Safety Lead">Systems Safety Lead</option>
@@ -35,7 +39,7 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>LEVEL</label>
+                <label>Level</label>
                 <select id="level">
                     <option value="L3">L3 (Junior)</option>
                     <option value="L4">L4 (Senior)</option>
@@ -43,7 +47,7 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>DOMAIN_FOCUS</label>
+                <label>Domain Focus</label>
                 <select id="topic">
                     <option value="ADAS">ADAS / Autonomy</option>
                     <option value="Steering">EPS / Steering</option>
@@ -51,52 +55,51 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>EXPERIENCE (YEARS)</label>
+                <label>Experience (Years)</label>
                 <input type="number" id="exp" value="5" min="1" max="20">
             </div>
-            <button id="start-btn" onclick="startAudit()">INITIATE_PROTOCOL()</button>
+            <button id="start-btn" onclick="startAudit()">Begin Interview</button>
         </div>
 
         <!-- Interface -->
         <div id="interface-panel" class="panel" style="display: none;">
             <div class="chat-area" id="messagelog">
                 <div class="message system">
-                    SYSTEM: ESTABLISHING SECURE CHANNEL... <br>
-                    SYSTEM: LOADING SAFETY NORMS (ISO 26262-2018)... <br>
-                    SYSTEM: READY.
+                    System: Secure connection established. Initializing Safety Assessor...
                 </div>
             </div>
 
             <div class="input-area">
                 <button id="mic-btn" class="icon-btn" onclick="toggleMic()" title="Enable Microphone">🎤</button>
                 <button id="speaker-btn" class="icon-btn active" onclick="toggleSpeaker()"
-                    title="Mute/Unmute Auditor">🔊</button>
-                <textarea id="user-input"
-                    placeholder="// Describe your safety concept... (or click Mic to speak)"></textarea>
-                <button id="send-btn" onclick="sendResponse()">TRANSMIT</button>
+                    title="Mute/Unmute">🔊</button>
+                <textarea id="user-input" placeholder="Type your response here... (or use microphone)"></textarea>
+                <button id="send-btn" onclick="sendResponse()">Send</button>
             </div>
         </div>
     </div>
 
     <div class="artifact-panel">
-        <h3>ARTIFACTS / DIAGRAMS</h3>
+        <h3 class="artifact-h3">Information & Artifacts</h3>
         <div class="artifact-placeholder">
-            [SYSML DIAGRAM VIEWER OFFLINE]<br>
-            [ PLEASE DESCRIBE ARCHITECTURE IN TEXT ]
+            <div>
+                <p>System Architecture Viewer</p>
+                <small>(Submit text descriptions for analysis)</small>
+            </div>
         </div>
         <div class="metrics">
-            <h4>AUDIT METRICS</h4>
-            <div class="metric-row"><span>SPFM:</span>
+            <h4>Live Assessment Metrics</h4>
+            <div class="metric-row"><span>SPFM (Single Point Fault Metric)</span>
                 <div class="bar-container">
                     <div class="bar" style="width: 90%"></div>
                 </div>
             </div>
-            <div class="metric-row"><span>LFM:</span>
+            <div class="metric-row"><span>LFM (Latent Fault Metric)</span>
                 <div class="bar-container">
                     <div class="bar" style="width: 60%"></div>
                 </div>
             </div>
-            <div class="metric-row"><span>PMHF:</span>
+            <div class="metric-row"><span>PMHF (Probabilistic Metric)</span>
                 <div class="bar-container">
                     <div class="bar" style="width: 10%"></div>
                 </div>
