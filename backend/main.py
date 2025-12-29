@@ -75,9 +75,9 @@ async def start_audit(
 
 @app.post("/audit/{session_id}/respond")
 async def respond(session_id: str, candidate_response: str = Body(...)):
+    global sessions
     # Reload session from disk if missing (handling multi-worker case poorly but good for restart)
     if session_id not in sessions:
-         global sessions
          sessions = load_sessions()
 
     if session_id not in sessions:
