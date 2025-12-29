@@ -108,7 +108,7 @@ function addMessage(role, content) {
 }
 
 async function startAudit() {
-    const role = document.getElementById('role').value;
+    const role = document.getElementById('roleSelect').value;
     const level = document.getElementById('level').value;
     const topic = document.getElementById('topic').value;
     const exp = parseInt(document.getElementById('exp').value);
