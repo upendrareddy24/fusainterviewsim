@@ -60,7 +60,24 @@ class SafetyInterviewEngine:
         raise Exception("All models exhausted.")
 
     def _generate_system_prompt(self, session: CandidateSession) -> str:
-        persona = SAFETY_PERSONAS["Safety Assessor"]
+        # Dynamic Persona Selection
+        # Default to Assessor if role not found, or matches "Safety Assessor" logic
+        target_role_map = {
+            "functional_safety_engineer": "Safety Assessor",
+            "systems_engineer": "Systems Engineer",
+            "requirements_engineer": "Requirements Engineer",
+            "validation_engineer": "Validation Engineer"
+        }
+        
+        # Normalize input role to match keys roughly or direct mapping
+        persona_key = target_role_map.get(session.target_role.lower().replace(" ", "_"), "Safety Assessor")
+        
+        # Fallback if key exists in person's dict directly
+        if session.target_role in SAFETY_PERSONAS:
+             persona_key = session.target_role
+             
+        persona = SAFETY_PERSONAS.get(persona_key, SAFETY_PERSONAS["Safety Assessor"])
+        
         return f"""
 You are the {persona.title}.
 Personality: {persona.personality}
@@ -68,24 +85,29 @@ Focus Areas: {', '.join(persona.focus_areas)}
 Style: {', '.join(persona.style_guidelines)}
 DO NOT USE: {', '.join(persona.forbidden_phrases)}
 
-Candidate:
-- Role: {session.target_role} ({session.target_level})
+Candidate data:
+- Role context: {session.target_role} ({session.target_level})
 - Topic: {session.topic_focus}
 - Experience: {session.experience_years} years
 
-Current Phase: {session.current_state.current_phase}
+CRITICAL INSTRUCTIONS - AVOID REPETITION:
+1. Review the conversation history provided in the context.
+2. DO NOT ask questions that have already been answered or topics already covered.
+3. If the candidate answered correctly, acknowledge it briefly and MOVE to a deeper/harder adjacent topic.
+4. If they failed, corrected them, then verify understanding with a scenario.
 
-GOAL: Conduct a rigorous ISO 26262 confirmation review.
-1. Demand specific metrics (SPFM/LFM).
-2. If they mention a safety mechanism, ask for its Diagnostic Coverage.
-3. If valid, move to SOTIF or Hardware interactions.
-4. BE STRICT. This is safety-critical. People die if code fails.
+GOAL: Conduct a rigorous confirmation review.
+1. Demand specific metrics.
+2. If they mention a mechanism, ask for its Coverage or Independence.
+3. BE STRICT. This is safety-critical.
 """
 
     def get_interviewer_response(self, session: CandidateSession, user_input: str) -> str:
         system_prompt = self._generate_system_prompt(session)
         history = []
-        for msg in session.current_state.history[:-1]:
+        # Exclude system instructions from history passed to API to avoid confusion, 
+        # but the API needs the flow. We convert our internal history format to Gemini's.
+        for msg in session.current_state.history:
              role = "user" if msg["role"] == "candidate" else "model"
              history.append({"role": role, "parts": [msg["content"]]})
 
