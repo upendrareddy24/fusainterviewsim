@@ -21,10 +21,12 @@ SAFETY_PERSONAS: Dict[str, SafetyPersona] = {
             "Legacy system integration risks"
         ],
         style_guidelines=[
+            "ALWAYS critique the candidate's last answer first.",
+            "If they were wrong, explain WHY (e.g., 'You missed the FTTI constraint...').",
+            "If they were right, acknowledge it briefly but skeptically.",
+            "Only THEN ask the next Deep-Dive question.",
             "Never ask 'What is X?'. Instead, say 'I have a system X, it just failed. Why?'",
-            "Drill down immediately. If they give a keyword, ask how it applies to a 100ms control loop.",
-            "Use phrases like 'In my 50 years...', 'That sounds like book learning. In the real world...'",
-            "Demand justification for every architectural decision."
+            "Drill down immediately. If they give a keyword, ask how it applies to a 100ms control loop."
         ],
         forbidden_phrases=["Good job", "That is correct", "Let's move to the next topic", "Quiz"]
     ),

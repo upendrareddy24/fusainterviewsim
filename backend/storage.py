@@ -1,38 +1,52 @@
+import sqlite3
 import json
 import os
-from typing import Dict
+from typing import Dict, Any, Optional
 from .models import CandidateSession
 
-STORAGE_FILE = "sessions.json"
+DB_FILE = "interviews.db"
 
-def load_sessions() -> Dict[str, CandidateSession]:
-    if not os.path.exists(STORAGE_FILE):
-        return {}
+def init_db():
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS sessions
+                 (session_id TEXT PRIMARY KEY, data TEXT)''')
+    conn.commit()
+    conn.close()
+
+def load_session(session_id: str) -> Optional[CandidateSession]:
+    init_db() # Ensure table exists
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("SELECT data FROM sessions WHERE session_id=?", (session_id,))
+    row = c.fetchone()
+    conn.close()
     
-    try:
-        with open(STORAGE_FILE, 'r') as f:
-            data = json.load(f)
-            sessions = {}
-            for session_id, session_data in data.items():
-                try:
-                    # Reconstruct Pydantic model
-                    sessions[session_id] = CandidateSession(**session_data)
-                except Exception as e:
-                    print(f"Skipping corrupt session {session_id}: {e}")
-            print(f"Loaded {len(sessions)} sessions from disk.")
-            return sessions
-    except Exception as e:
-        print(f"Failed to load sessions: {e}")
-        return {}
+    if row:
+        try:
+            data = json.loads(row[0])
+            return CandidateSession(**data)
+        except Exception as e:
+            print(f"Error parsing session {session_id}: {e}")
+            return None
+    return None
 
 def save_session(session: CandidateSession):
-    sessions = load_sessions()
-    sessions[session.session_id] = session
-    
-    try:
-        # Convert all to dicts
-        data = {k: v.dict() for k, v in sessions.items()}
-        with open(STORAGE_FILE, 'w') as f:
-            json.dump(data, f, indent=2)
-    except Exception as e:
-        print(f"Failed to save session: {e}")
+    init_db() # Ensure table exists
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    data = json.dumps(session.dict())
+    c.execute("INSERT OR REPLACE INTO sessions (session_id, data) VALUES (?, ?)", 
+              (session.session_id, data))
+    conn.commit()
+    conn.close()
+
+# For backward compatibility with simpler load_all approach (though inefficient for 1000 users)
+def load_all_sessions_ids():
+    init_db()
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("SELECT session_id FROM sessions")
+    ids = [row[0] for row in c.fetchall()]
+    conn.close()
+    return ids

@@ -2,13 +2,12 @@ from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from typing import Dict
 import uuid
 
 from .models import CandidateSession, InterviewState
 from .engine import SafetyInterviewEngine
 from .personas import SAFETY_PERSONAS
-from .storage import load_sessions, save_session
+from .storage import load_session, save_session
 
 app = FastAPI(title="ISO 26262 Safety Interviewer")
 
@@ -19,15 +18,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load persisted sessions on startup
-sessions: Dict[str, CandidateSession] = load_sessions()
+# No more global dictionary "sessions". We load on demand.
 engine = None
 
 @app.on_event("startup")
 async def startup_event():
-    global engine, sessions
-    # Reload to be sure
-    sessions = load_sessions()
+    global engine
     try:
         engine = SafetyInterviewEngine()
         print("Safety Engine Initialized (Hybrid Mode)")
@@ -37,7 +33,7 @@ async def startup_event():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "operational", "mode": "hybrid"}
+    return {"status": "operational", "mode": "hybrid", "storage": "sqlite"}
 
 @app.post("/audit/start")
 async def start_audit(
@@ -67,34 +63,31 @@ async def start_audit(
     
     session.current_state.history.append({"role": "interviewer", "content": intro})
     
-    # Save to memory and disk
-    sessions[session_id] = session
+    # Save to DB
     save_session(session)
     
     return {"session_id": session_id, "interviewer_message": intro}
 
 @app.post("/audit/{session_id}/respond")
 async def respond(session_id: str, candidate_response: str = Body(...)):
-    global sessions
-    # Reload session from disk if missing (handling multi-worker case poorly but good for restart)
-    if session_id not in sessions:
-         sessions = load_sessions()
+    # Load session from DB (Stateless scaling)
+    session = load_session(session_id)
 
-    if session_id not in sessions:
+    if not session:
         raise HTTPException(status_code=404, detail="Audit session not found")
     
-    session = sessions[session_id]
     session.current_state.history.append({"role": "candidate", "content": candidate_response})
     
     response = engine.get_interviewer_response(session, candidate_response)
     session.current_state.history.append({"role": "interviewer", "content": response})
     
+    # Save state
     save_session(session)
     
     return {"interviewer_message": response}
 
 @app.get("/")
-async def read_index():
+async def read_root():
     return FileResponse('frontend/index.html')
 
-app.mount("/", StaticFiles(directory="frontend"), name="frontend")
+app.mount("/", StaticFiles(directory="frontend"), name="static")
