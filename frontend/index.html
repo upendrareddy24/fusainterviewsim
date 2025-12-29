@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISO 26262 AUDIT CHAMBER</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="audit-container">
+        <!-- Header -->
+        <header class="audit-header">
+            <div class="logo">
+                <span class="hazard-icon">⚠️</span> TUV_SIM::AUDIT_CORE
+            </div>
+            <div class="status-panel">
+                <span class="status-item">MODE: <span class="blink">ASIL D</span></span>
+                <span class="status-item">CONN: SECURE</span>
+            </div>
+        </header>
+
+        <!-- Configuration Panel -->
+        <div id="config-panel" class="panel">
+            <h2>// INITIALIZE AUDIT PARAMETERS</h2>
+            <div class="form-group">
+                <label>TARGET_ROLE</label>
+                <select id="role">
+                    <option value="Safety Assessor">Functional Safety Engineer</option>
+                    <option value="Systems Safety Lead">Systems Safety Lead</option>
+                    <option value="SOTIF Expert">SOTIF Expert</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>LEVEL</label>
+                <select id="level">
+                    <option value="L3">L3 (Junior)</option>
+                    <option value="L4">L4 (Senior)</option>
+                    <option value="L5">L5 (Principal)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>DOMAIN_FOCUS</label>
+                <select id="topic">
+                    <option value="ADAS">ADAS / Autonomy</option>
+                    <option value="Steering">EPS / Steering</option>
+                    <option value="Braking">E-Brake / Chassis</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>EXPERIENCE (YEARS)</label>
+                <input type="number" id="exp" value="5" min="1" max="20">
+            </div>
+            <button id="start-btn" onclick="startAudit()">INITIATE_PROTOCOL()</button>
+        </div>
+
+        <!-- Interface -->
+        <div id="interface-panel" class="panel" style="display: none;">
+            <div class="chat-area" id="messagelog">
+                <div class="message system">
+                    SYSTEM: ESTABLISHING SECURE CHANNEL... <br>
+                    SYSTEM: LOADING SAFETY NORMS (ISO 26262-2018)... <br>
+                    SYSTEM: READY.
+                </div>
+            </div>
+
+            <div class="input-area">
+                <button id="mic-btn" class="icon-btn" onclick="toggleMic()" title="Enable Microphone">🎤</button>
+                <button id="speaker-btn" class="icon-btn active" onclick="toggleSpeaker()"
+                    title="Mute/Unmute Auditor">🔊</button>
+                <textarea id="user-input"
+                    placeholder="// Describe your safety concept... (or click Mic to speak)"></textarea>
+                <button id="send-btn" onclick="sendResponse()">TRANSMIT</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="artifact-panel">
+        <h3>ARTIFACTS / DIAGRAMS</h3>
+        <div class="artifact-placeholder">
+            [SYSML DIAGRAM VIEWER OFFLINE]<br>
+            [ PLEASE DESCRIBE ARCHITECTURE IN TEXT ]
+        </div>
+        <div class="metrics">
+            <h4>AUDIT METRICS</h4>
+            <div class="metric-row"><span>SPFM:</span>
+                <div class="bar-container">
+                    <div class="bar" style="width: 90%"></div>
+                </div>
+            </div>
+            <div class="metric-row"><span>LFM:</span>
+                <div class="bar-container">
+                    <div class="bar" style="width: 60%"></div>
+                </div>
+            </div>
+            <div class="metric-row"><span>PMHF:</span>
+                <div class="bar-container">
+                    <div class="bar" style="width: 10%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
