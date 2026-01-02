@@ -56,7 +56,13 @@
             <h1 class="text-xl font-bold tracking-tight text-white">FuSa<span class="text-blue-500">Sim</span> <span
                     class="text-xs text-gray-400 font-normal">Automotive Intelligence</span></h1>
         </div>
-        <div class="text-xs text-gray-500">ISO 26262 | ISO 21448 | ISO 21434</div>
+        <div class="flex items-center gap-4">
+            <button onclick="toggleVoice()" id="voice-toggle"
+                class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 border border-gray-700 hover:border-blue-500 transition-all text-xs font-semibold text-gray-400">
+                <span id="voice-icon">🔇</span> Voice Off
+            </button>
+            <div class="text-xs text-gray-500">ISO 26262 | ISO 21448 | ISO 21434</div>
+        </div>
     </header>
 
     <!-- Config Modal (Overlay) -->
@@ -226,6 +232,52 @@
         });
 
         let lastSetupData = null;
+        let isVoiceEnabled = false;
+        const synth = window.speechSynthesis;
+
+        function toggleVoice() {
+            isVoiceEnabled = !isVoiceEnabled;
+            const btn = document.getElementById('voice-toggle');
+            const icon = document.getElementById('voice-icon');
+
+            if (isVoiceEnabled) {
+                btn.classList.add('text-blue-400', 'border-blue-500/50', 'bg-blue-500/10');
+                btn.classList.remove('text-gray-400');
+                icon.innerText = '🔊';
+                btn.innerHTML = `<span id="voice-icon">🔊</span> Voice On`;
+                // Initial greeting to prime the engine
+                speak("Voice Guidance Active.");
+            } else {
+                btn.classList.remove('text-blue-400', 'border-blue-500/50', 'bg-blue-500/10');
+                btn.classList.add('text-gray-400');
+                icon.innerText = '🔇';
+                btn.innerHTML = `<span id="voice-icon">🔇</span> Voice Off`;
+                synth.cancel();
+            }
+        }
+
+        function speak(text) {
+            if (!isVoiceEnabled || !text) return;
+
+            // Clean markdown for speech
+            const cleanText = text
+                .replace(/\*(.*?)\*/g, '$1')
+                .replace(/### (.*?)\n/g, '$1. ')
+                .replace(/\n/g, '. ');
+
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+
+            // Try to find a professional sounding voice
+            const voices = synth.getVoices();
+            const preferred = voices.find(v => v.name.includes('Google UK English Male') || v.name.includes('Samantha'));
+            if (preferred) utterance.voice = preferred;
+
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+
+            synth.cancel(); // Stop current speech
+            synth.speak(utterance);
+        }
 
         async function startSession() {
             const role = document.getElementById('setup-role').value;
@@ -330,6 +382,10 @@
             div.appendChild(bubble);
             msgsDiv.appendChild(div);
             msgsDiv.scrollTop = msgsDiv.scrollHeight;
+
+            if (role === 'interviewer') {
+                speak(text);
+            }
         }
 
         function showReport(data) {
