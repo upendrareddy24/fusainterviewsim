@@ -159,6 +159,10 @@ class InterviewEngine:
         """
         Static Engine with 'Show Answer' capability.
         """
+        # Lazy Load: Ensure data exists if we fell back from Cloud
+        if not self.questions["iso26262"]:
+            self.load_static_data()
+
         history_len = len(session.current_state.history)
         
         # 1. Start or New Question Logic
