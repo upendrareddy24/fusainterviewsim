@@ -164,13 +164,20 @@ class InterviewEngine:
         # 1. Start or New Question Logic
         if "START_ROUND" in user_input or history_len <= 1 or "next question" in user_input.lower():
             # Determine topic map
-            topic_key = "iso26262"
-            if "sotif" in session.topic_focus.lower(): topic_key = "sotif"
-            elif "cyber" in session.topic_focus.lower(): topic_key = "cybersecurity"
-            elif "stpa" in session.topic_focus.lower(): topic_key = "stpa"
-            elif "v&v" in session.topic_focus.lower(): topic_key = "v_and_v"
+            # Use loose matching against session.topic_focus (e.g. "ISO 26262 (Functional Safety)")
+            focus_lower = session.topic_focus.lower()
             
-            questions = self.questions.get(topic_key, self.questions["iso26262"])
+            topic_key = "iso26262" # Default
+            if "sotif" in focus_lower: topic_key = "sotif"
+            elif "cyber" in focus_lower: topic_key = "cybersecurity"
+            elif "stpa" in focus_lower: topic_key = "stpa"
+            elif "v&v" in focus_lower: topic_key = "v_and_v"
+            
+            # Fallback if key empty
+            if not self.questions.get(topic_key):
+                 topic_key = "iso26262"
+
+            questions = self.questions.get(topic_key, [])
             if not questions: return "Error: No questions loaded."
             
             q = random.choice(questions)
