@@ -220,9 +220,11 @@
         const inputField = document.getElementById('user-input');
         const msgsDiv = document.getElementById('messages');
 
+        let isProcessing = false;
+
         // Allow Enter key: Empty input = Next Question, Non-empty = Send Answer
         inputField.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !isProcessing) {
                 if (inputField.value.trim() === '') {
                     sendNextQuestion();
                 } else {
@@ -279,7 +281,7 @@
             synth.speak(utterance);
         }
 
-        async function startSession() {
+        async function startSession(isRecovery = false) {
             const role = document.getElementById('setup-role').value;
             const focus = document.getElementById('setup-focus').value;
             const level = document.getElementById('setup-level').value;
@@ -296,23 +298,34 @@
                 });
                 const data = await res.json();
                 sessionId = data.session_id;
-                addMessage('interviewer', data.interviewer_message);
+
+                // If this is a recovery, the start message IS the next question.
+                // We add it to the UI.
+                if (isRecovery) {
+                    addMessage('interviewer', data.interviewer_message);
+                } else {
+                    // Normal start
+                    addMessage('interviewer', data.interviewer_message);
+                }
             } catch (e) {
                 alert("Connection Error. Ensure Backend is running.");
                 location.reload();
             }
         }
 
-        async function sendMessage(overrideText = null) {
+        async function sendMessage(overrideText = null, isRetry = false) {
             const text = overrideText || inputField.value.trim();
-            if (!text || !sessionId) return;
+            if (!text || !sessionId || (isProcessing && !isRetry)) return;
 
-            if (!overrideText) {
-                inputField.value = '';
-                addMessage('candidate', text);
-            } else {
-                const label = text.toLowerCase().includes("answer") ? "🔍 Show Answer" : (text.toLowerCase().includes("hint") ? "💡 Hint" : "⏩ Next Question");
-                addMessage('candidate', label);
+            isProcessing = true;
+            if (!isRetry) {
+                if (!overrideText) {
+                    inputField.value = '';
+                    addMessage('candidate', text);
+                } else {
+                    const label = text.toLowerCase().includes("answer") ? "🔍 Show Answer" : (text.toLowerCase().includes("hint") ? "💡 Hint" : "⏩ Next Question");
+                    addMessage('candidate', label);
+                }
             }
 
             try {
@@ -324,14 +337,25 @@
 
                 if (res.status === 404 && lastSetupData) {
                     console.log("Session lost. Recovering...");
-                    await startSession();
-                    return sendMessage(text);
+                    await startSession(true);
+
+                    // If the original command was "Next", stop here because startSession 
+                    // already grabbed and displayed the "Next" question.
+                    if (text.toLowerCase().includes("next") || text.toLowerCase().includes("start")) {
+                        isProcessing = false;
+                        return;
+                    }
+
+                    // Otherwise, retry the specific command (e.g. Show Answer)
+                    return sendMessage(text, true);
                 }
 
                 const data = await res.json();
                 addMessage('interviewer', data.interviewer_message);
             } catch (e) {
                 addMessage('interviewer', "Connection Error. Check your uplink.");
+            } finally {
+                isProcessing = false;
             }
         }
 
