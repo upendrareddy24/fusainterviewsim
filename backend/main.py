@@ -2,8 +2,8 @@ import logging
 import uuid
 import json
 from typing import Dict
-
 from fastapi import FastAPI, HTTPException, Body, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
@@ -17,12 +17,20 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="FuSa Interview Simulator Pro")
 
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    logger.error(f"Validation Error: {exc.errors()}")
+    return JSONResponse(
+        status_code=422,
+        content={"interviewer_message": "The message format was invalid. Please try again or click 'Next'."}
+    )
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"FATAL: {exc}", exc_info=True)
     return JSONResponse(
         status_code=500,
-        content={"interviewer_message": f"System error: {str(exc)}. Please click 'Next' to reset."}
+        content={"interviewer_message": f"System error detected. Tracking ID: {uuid.uuid4().hex[:6]}"}
     )
 
 app.add_middleware(
