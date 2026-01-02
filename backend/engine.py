@@ -88,6 +88,10 @@ class InterviewEngine:
     def get_interviewer_response(self, session: CandidateSession, user_input: str) -> str:
         """Dispatcher for generating responses based on active mode."""
         try:
+            # Normal triggers for new question in STATIC mode
+            next_triggers = ["next question", "start_round", "ready for next", "yes", "ok", "go ahead"]
+            if any(t in user_input.lower() for t in next_triggers) and self.mode == "STATIC":
+                return self._generate_static_response(session, user_input)
 
             if self.mode == "GROK_API":
                 return self._generate_grok_response(session, user_input)
@@ -98,11 +102,14 @@ class InterviewEngine:
             else:
                 return self._generate_static_response(session, user_input)
         except Exception as e:
-            print(f"Error in {self.mode}: {e}. Falling back to STATIC.")
+            print(f"Dispatcher Panic: {e}")
             self.mode = "STATIC"
-            if not self.questions["iso26262"]:
-                self.load_static_data()
-            return self._generate_static_response(session, user_input)
+            try:
+                if not self.questions.get("iso26262"):
+                    self.load_static_data()
+                return self._generate_static_response(session, user_input)
+            except:
+                return "Interesting point. Can you elaborate on the safety implications?"
     
     def _generate_grok_response(self, session: CandidateSession, user_input: str) -> str:
         # Check for Show Answer
@@ -208,15 +215,23 @@ class InterviewEngine:
 
         # 2. Show Answer Logic
         if "answer" in user_input.lower() and ("show" in user_input.lower() or "give" in user_input.lower() or "tell" in user_input.lower()):
-            # Find current problem ID
-            for msg in reversed(session.current_state.history):
-                if msg.get("role") == "system" and "PROBLEM_ID" in msg["content"]:
-                    _, pid, tkey = msg["content"].split(":")
-                    qs = self.questions.get(tkey, [])
-                    q = next((x for x in qs if x["id"] == pid), None)
-                    if q:
-                        return f"## Golden Answer\n\n{q['golden_answer']}\n\n---\n*Ready for next question?*"
-            return "I can't find the current question context."
+            try:
+                # Find current problem ID
+                for msg in reversed(session.current_state.history):
+                    content = msg.get("content", "")
+                    if msg.get("role") == "system" and "PROBLEM_ID" in content:
+                        parts = content.split(":")
+                        if len(parts) >= 3:
+                            pid = parts[1]
+                            tkey = parts[2]
+                            qs = self.questions.get(tkey, [])
+                            q = next((x for x in qs if x["id"] == pid), None)
+                            if q:
+                                return f"## Golden Answer\n\n{q['golden_answer']}\n\n---\n*Ready for next question?*"
+                return "I can't find the context for that question. Type 'Next Question' to get a new one."
+            except Exception as e:
+                print(f"Static Answer Error: {e}")
+                return "I ran into an issue retrieving that answer. Can you try again?"
 
         # 3. Hint Logic
         if "hint" in user_input.lower():
