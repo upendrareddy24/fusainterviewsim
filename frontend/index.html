@@ -214,9 +214,15 @@
         const inputField = document.getElementById('user-input');
         const msgsDiv = document.getElementById('messages');
 
-        // Allow Enter key
+        // Allow Enter key: Empty input = Next Question, Non-empty = Send Answer
         inputField.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
+            if (e.key === 'Enter') {
+                if (inputField.value.trim() === '') {
+                    sendNextQuestion();
+                } else {
+                    sendMessage();
+                }
+            }
         });
 
         let lastSetupData = null;

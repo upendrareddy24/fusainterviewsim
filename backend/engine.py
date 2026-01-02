@@ -89,7 +89,7 @@ class InterviewEngine:
         """Dispatcher for generating responses based on active mode."""
         try:
             # Normal triggers for new question in STATIC mode
-            next_triggers = ["next question", "start_round", "ready for next", "yes", "ok", "go ahead"]
+            next_triggers = ["next question", "next", "start_round", "ready for next", "yes", "ok", "go ahead"]
             if any(t in user_input.lower() for t in next_triggers) and self.mode == "STATIC":
                 return self._generate_static_response(session, user_input)
 
@@ -175,45 +175,7 @@ class InterviewEngine:
 
         history_len = len(session.current_state.history)
         
-        # 1. Start or New Question Logic
-        triggers = ["start_round", "next question", "yes", "ready", "ok", "sure", "go ahead", "yep"]
-        if any(t in user_input.lower() for t in triggers) or history_len <= 1:
-            # Determine topic map
-            # Use loose matching against session.topic_focus (e.g. "ISO 26262 (Functional Safety)")
-            focus_lower = session.topic_focus.lower()
-            
-            topic_key = "iso26262" # Default
-            if "sotif" in focus_lower: topic_key = "sotif"
-            elif "cyber" in focus_lower: topic_key = "cybersecurity"
-            elif "stpa" in focus_lower: topic_key = "stpa"
-            elif "v&v" in focus_lower: topic_key = "v_and_v"
-            
-            # Fallback if key empty
-            if not self.questions.get(topic_key):
-                 topic_key = "iso26262"
-
-            questions = self.questions.get(topic_key, [])
-            if not questions: return "Error: No questions loaded."
-            
-            # Avoid repeating the immediate last question if possible
-            last_problem_id = None
-            for msg in reversed(session.current_state.history):
-                if "PROBLEM_ID" in msg.get("content", ""):
-                    last_problem_id = msg["content"].split(":")[1]
-                    break
-            
-            eligible = [q for q in questions if q["id"] != last_problem_id]
-            if not eligible: eligible = questions
-            
-            q = random.choice(eligible)
-            # Store ID in history for retrieval
-            session.current_state.history.append({"role": "system", "content": f"PROBLEM_ID:{q['id']}:{topic_key}"})
-            
-            intros = ["Let's dive into", "Can you explain", "Here is a challenge regarding", "Tell me about", "Next:"]
-            intro = random.choice(intros)
-            return f"### {q['topic']}\n\n{intro} **{q['question']}**"
-
-        # 2. Show Answer Logic
+        # 1. Show Answer Logic (Prioritized)
         if "answer" in user_input.lower() and ("show" in user_input.lower() or "give" in user_input.lower() or "tell" in user_input.lower()):
             try:
                 # Find current problem ID
@@ -233,16 +195,59 @@ class InterviewEngine:
                 print(f"Static Answer Error: {e}")
                 return "I ran into an issue retrieving that answer. Can you try again?"
 
-        # 3. Hint Logic
+        # 2. Hint Logic
         if "hint" in user_input.lower():
              for msg in reversed(session.current_state.history):
-                if msg.get("role") == "system" and "PROBLEM_ID" in msg["content"]:
-                    _, pid, tkey = msg["content"].split(":")
-                    qs = self.questions.get(tkey, [])
-                    q = next((x for x in qs if x["id"] == pid), None)
-                    if q: return f"**Hint**: {q['hint']}"
+                content = msg.get("content", "")
+                if msg.get("role") == "system" and "PROBLEM_ID" in content:
+                    parts = content.split(":")
+                    if len(parts) >= 3:
+                        pid = parts[1]
+                        tkey = parts[2]
+                        qs = self.questions.get(tkey, [])
+                        q = next((x for x in qs if x["id"] == pid), None)
+                        if q: return f"**Hint**: {q['hint']}"
 
-        return "Interesting point. Can you elaborate on the safety implications? (Or ask 'Show Answer' if stuck)."
+        # 3. Start or New Question Logic
+        triggers = ["start_round", "next question", "next", "yes", "ready", "ok", "sure", "go ahead", "yep"]
+        is_next = any(t in user_input.lower() for t in triggers)
+        
+        # Double check: Don't trigger 'next' if they are clearly asking for an answer or hint
+        if "answer" in user_input.lower() or "hint" in user_input.lower():
+            is_next = False
+
+        if is_next or history_len <= 1:
+            # Determine topic map
+            focus_lower = session.topic_focus.lower()
+            topic_key = "iso26262" 
+            if "sotif" in focus_lower: topic_key = "sotif"
+            elif "cyber" in focus_lower: topic_key = "cybersecurity"
+            elif "stpa" in focus_lower: topic_key = "stpa"
+            elif "v&v" in focus_lower: topic_key = "v_and_v"
+            
+            if not self.questions.get(topic_key): topic_key = "iso26262"
+
+            questions = self.questions.get(topic_key, [])
+            if not questions: return "Error: No questions loaded."
+            
+            last_problem_id = None
+            for msg in reversed(session.current_state.history):
+                if "PROBLEM_ID" in msg.get("content", ""):
+                    last_problem_id = msg["content"].split(":")[1]
+                    break
+            
+            eligible = [q for q in questions if q["id"] != last_problem_id]
+            if not eligible: eligible = questions
+            
+            q = random.choice(eligible)
+            session.current_state.history.append({"role": "system", "content": f"PROBLEM_ID:{q['id']}:{topic_key}"})
+            
+            intros = ["Let's dive into", "Can you explain", "Here is a challenge regarding", "Tell me about", "Next:"]
+            intro = random.choice(intros)
+            return f"### {q['topic']}\n\n{intro} **{q['question']}**"
+
+        # 4. Fallback: Catch-all for other inputs when in static mode
+        return "Interesting point. Can you elaborate on the safety implications? (Or click 'Show Answer' to continue)."
 
     def evaluate_round(self, session: CandidateSession) -> Dict[str, Any]:
         return {
