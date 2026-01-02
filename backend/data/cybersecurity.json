@@ -3,14 +3,14 @@
         "id": "tara_steps",
         "topic": "TARA (Threat Analysis and Risk Assessment)",
         "question": "What are the key steps in a TARA according to ISO 21434?",
-        "golden_answer": "1. **Asset Identification**: What are we protecting? (e.g., Cryptographic keys, Braking signal).\n2. **Threat Scenario Identification**: How can it be compromised? (e.g., Spoofing CAN messages).\n3. **Impact Rating**: SFOP (Safety, Financial, Operational, Privacy).\n4. **Attack Path Analysis**: How feasible is the attack?\n5. **Risk Determination**: Combining Impact and Feasibility to determine the Risk Level (CAL).",
+        "golden_answer": "TARA involves Asset Identification, Threat Scenario Identification, Impact Rating (SFOP), Attack Path Analysis, and Risk Determination.\n\n### STAR Interview Example\n**Situation**: Working on a Telematics Gateway for a new SUV.\n**Task**: Perform a TARA to secure the Over-the-Air (OTA) update process.\n**Action**: I identified the 'Update Signing Key' as a high-value asset. I analyzed threat scenarios like 'Key Theft from Server' and 'Man-in-the-Middle' attacks. I rated the impact as high for both Safety and Financial.\n**Result**: We determined a high Risk Level, which led to the implementation of a Hardware Security Module (HSM) and multi-factor signing on the backend.",
         "hint": "Assets -> Threats -> Impact -> Feasibility -> Risk."
     },
     {
         "id": "cia_triad_automotive",
         "topic": "CIA Triad",
         "question": "How does the CIA triad apply to automotive CAN bus communication?",
-        "golden_answer": "1. **Confidentiality**: Not usually critical on CAN (signals are broadcast), but critical for Keys/Personal Data.\n2. **Integrity**: CRITICAL. Ensuring the 'Brake' signal actually came from the Brake ECU (preventing spoofing). Solved via SecOC (CMAC).\n3. **Availability**: CRITICAL. Preventing DoS attacks that flood the bus and delay braking.",
+        "golden_answer": "1. Confidentiality: Metadata protection. 2. Integrity: Preventing spoofing. 3. Availability: Preventing DoS.\n\n### STAR Interview Example\n**Situation**: During the security audit of a powertrain controller.\n**Task**: Ensure the integrity of torque command messages across the CAN FD bus.\n**Action**: I implemented a Secure Onboard Communication (SecOC) protocol using Message Authentication Codes (CMAC) and Freshness Values.\n**Result**: We successfully demonstrated that even if an attacker gained access to the bus, they could not replay or forge torque commands, ensuring the 'Integrity' of the vehicle behavior.",
         "hint": "Confidentiality, Integrity, Availability."
     }
 ]

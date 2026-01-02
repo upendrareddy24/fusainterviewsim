@@ -3,14 +3,14 @@
         "id": "xil_testing",
         "topic": "X-in-the-Loop Testing",
         "question": "Differentiate between MIL, SIL, PIL, and HIL testing stages.",
-        "golden_answer": "1. **MIL (Model-in-the-Loop)**: Testing the logic model (e.g., Simulink) in simulation.\n2. **SIL (Software-in-the-Loop)**: Testing the generated C-code on the host PC.\n3. **PIL (Processor-in-the-Loop)**: Running code on the target processor (or emulator) to check timing/stack usage.\n4. **HIL (Hardware-in-the-Loop)**: Running the real ECU with real I/O connected to a real-time plant model (e.g., dSPACE/NI rig).",
+        "golden_answer": "Stages: Model-in-the-Loop (MIL), Software-in-the-Loop (SIL), Processor-in-the-Loop (PIL), and Hardware-in-the-Loop (HIL).\n\n### STAR Interview Example\n**Situation**: We were porting a torque-vectoring algorithm from a prototype to a series-production ECU.\n**Task**: Ensure the logic performed correctly on the real hardware.\n**Action**: We started with MIL (Simulink) to fix logic bugs, moved to SIL to verify the C-code conversion, and finally used HIL to test the real hardware interrupts and PWM signals.\n**Result**: This tiered approach caught a floating-point error in SIL and a race condition in HIL, preventing a potentially dangerous torque asymmetry in the real vehicle.",
         "hint": "Model -> Software -> Processor -> Hardware."
     },
     {
         "id": "verification_vs_validation",
         "topic": "Verification vs Validation",
         "question": "What is the core difference between Verification and Validation?",
-        "golden_answer": "**Verification**: 'Are we building the product right?' (Conforming to requirements/specs).\n**Validation**: 'Are we building the right product?' (Does it meet the user's needs/goals in the real world?).\n\nExample: Verification checks if the AEB triggers at 20m. Validation checks if the AEB actually stops the car before hitting a pedestrian in snow.",
+        "golden_answer": "Verification: Conformance to requirements. Validation: Meeting the real-world safety goal.\n\n### STAR Interview Example\n**Situation**: Lead engineer for a Lane Keep Assist (LKA) system.\n**Task**: Perform the final safety sign-off.\n**Action**: I verified that the code met all 250 functional requirements using HIL testing. However, for validation, I took the prototype to a test track with worn-out lane markings and low-contrast asphalt.\n**Result**: While we passed all 'Verification' tests, we found that the 'Validation' failed because the user felt the steering was too aggressive on poor roads. We tuned the algorithm to improve the safety goal of 'controllability'.",
         "hint": "Building it right vs. Building the right thing."
     }
 ]

@@ -3,63 +3,63 @@
         "id": "iso26262_asil_determination",
         "topic": "ISO 26262 - Concept Phase (Part 3)",
         "question": "How do you determine the ASIL (Automotive Safety Integrity Level) for a specific vehicle function? Walk me through the parameters.",
-        "golden_answer": "ASIL is determined by three parameters: Severity (S), Exposure (E), and Controllability (C).\n\n1. **Severity (S0-S3)**: Harm to the driver/passenger/pedestrian.\n2. **Exposure (E0-E4)**: Probability of the operational scenario occurring.\n3. **Controllability (C0-C3)**: Ability of the driver to avoid the accident.\n\nExample: Loss of steering at high speed is S3, E4, C3 -> ASIL D.",
+        "golden_answer": "ASIL is determined by three parameters: Severity (S), Exposure (E), and Controllability (C).\n\n1. **Severity (S0-S3)**: Harm to the driver/passenger/pedestrian.\n2. **Exposure (E0-E4)**: Probability of the operational scenario occurring.\n3. **Controllability (C0-C3)**: Ability of the driver to avoid the accident.\n\n### STAR Interview Example\n**Situation**: During the concept phase of an Electronic Power Steering (EPS) system.\n**Task**: We needed to determine the ASIL for the 'unintended steering torque' hazard.\n**Action**: I conducted a HARA workshop. We rated Severity as S3 (life-threatening), Exposure as E4 (high frequency on highways), and Controllability as C3 (difficult to control). \n**Result**: This combination resulted in an ASIL D rating, which dictated our rigorous development and verification methods.",
         "hint": "Think about S, E, and C."
     },
     {
         "id": "hara_process",
         "topic": "Hazard Analysis and Risk Assessment (HARA)",
         "question": "Explain the HARA process in ISO 26262 Part 3. What are the outputs?",
-        "golden_answer": "HARA involves:\n1. **Item Definition**: Defining the system boundaries.\n2. **Hazard Identification**: Using HAZOP or Brainstorming.\n3. **Risk Classification**: Assigning S, E, C to derive ASIL.\n4. **Safety Goals**: Top-level requirements to mitigate hazardous events.\n\nOutput: Safety Goals and ASIL ratings.",
+        "golden_answer": "HARA involves:\n1. **Item Definition**: Defining the system boundaries.\n2. **Hazard Identification**: Using HAZOP or Brainstorming.\n3. **Risk Classification**: Assigning S, E, C to derive ASIL.\n4. **Safety Goals**: Top-level requirements to mitigate hazardous events.\n\n### STAR Interview Example\n**Situation**: I was leading the safety activities for a new Regenerative Braking System.\n**Task**: We had to identify all potential hazards to ensure vehicle stability.\n**Action**: I defined the system 'Item', performed a HAZOP to identify 'unintended braking', and classified risks for various driving scenarios (icy roads, high speed).\n**Result**: We derived 5 Safety Goals, including one for anti-lock functional redundancy, rated at ASIL D.",
         "hint": "Start from Item Definition and end with Safety Goals."
     },
     {
         "id": "fault_tolerant_time_interval",
         "topic": "Safety Concept (System)",
         "question": "What is the Fault Tolerant Time Interval (FTTI) and why is it critical?",
-        "golden_answer": "FTTI is the time span in which a fault must be detected AND the system must transition to a safe state (or the driver takes control) before a hazardous event occurs. \n\nFormula: FTTI = Fault Detection Time + Reaction Time.\nIf System Reaction > FTTI, the design is unsafe.",
+        "golden_answer": "FTTI is the time span in which a fault must be detected AND the system must transition to a safe state (or the driver takes control) before a hazardous event occurs.\n\n### STAR Interview Example\n**Situation**: In an Adaptive Cruise Control (ACC) project, we faced a potential 'unintended acceleration' fault.\n**Task**: I had to define the FTTI to ensure the system could reach a safe state before a collision.\n**Action**: I worked with the dynamics team to calculate that at highway speeds, a collision could occur within 600ms of a fault. I allocated 100ms for fault detection and 400ms for the braking reaction.\n**Result**: We verified that our total reaction time (500ms) was safely within the 600ms FTTI.",
         "hint": "It's the race between detecting the fault and the accident happening."
     },
     {
         "id": "freedom_from_interference",
         "topic": "Software Safety (Part 6)",
         "question": "Explain the concept of 'Freedom from Interference' (FFI) in a mixed-criticality system.",
-        "golden_answer": "FFI ensures that elements with lower ASIL (or QM) do not corrupt or block the execution of elements with higher ASIL. \n\nThree types of interference to check:\n1. **Spatial**: Memory corruption (MPU protection needed).\n2. **Temporal**: Timing/Execution blocking (Watchdogs, Scheduling).\n3. **Communication**: Corrupted data exchange (E2E protection).",
+        "golden_answer": "FFI ensures that elements with lower ASIL (or QM) do not corrupt or block the execution of elements with higher ASIL. It covers Spatial, Temporal, and Communication interference.\n\n### STAR Interview Example\n**Situation**: We were integrating a QM-rated Infotainment feature into an ASIL D clusters controller.\n**Task**: Ensure the Infotainment code couldn't crash the critical safety warnings.\n**Action**: I implemented an MPU (Memory Protection Unit) to enforce spatial isolation and a Watchdog Manager for temporal monitoring.\n**Result**: During testing, a buffer overflow in the Infotainment module was caught by the MPU, preventing it from corrupting safety-critical RAM.",
         "hint": "Think about ASIL D code running next to QM code. Memory, Time, Comm."
     },
     {
         "id": "software_unit_testing",
         "topic": "Software Verification (Part 6)",
         "question": "For ASIL D software, what methods are highly recommended for Unit Testing?",
-        "golden_answer": "For ASIL D, simple branch coverage is not enough. You need:\n1. **MC/DC (Modified Condition/Decision Coverage)**: To prove independence of conditions.\n2. **Boundary Value Analysis**.\n3. **Fault Injection** at the unit level.\n4. **Interface Testing**.",
+        "golden_answer": "For ASIL D, you need MC/DC (Modified Condition/Decision Coverage), Boundary Value Analysis, and Fault Injection.\n\n### STAR Interview Example\n**Situation**: I was responsible for the unit testing of an ASIL D battery management algorithm.\n**Task**: Achieve 100% MC/DC coverage as required by the safety plan.\n**Action**: I used VectorCAST to automate the tests. I manually wrote test cases for complex logical blocks where automated tools struggled to find the right inputs for MC/DC.\n**Result**: We achieved 100% coverage and discovered a latent logic bug in the overcharge protection branch that simple branch testing would have missed.",
         "hint": "Think beyond Statement Coverage. MC/DC is key."
     },
     {
         "id": "hardware_metrics_fmeda",
         "topic": "Hardware Safety (Part 5)",
         "question": "What are the two key quantitative hardware metrics required for ASIL D?",
-        "golden_answer": "1. **SPFM (Single Point Fault Metric)**: Must be > 99% for ASIL D. Measures coverage of single faults.\n2. **LFM (Latent Fault Metric)**: Must be > 90% for ASIL D. Measures coverage of latent (double) faults.\n\nAlso, the PMHF (Probabilistic Metric for Random Hardware Failures) must be < 10^-8 h^-1 (10 FIT).",
+        "golden_answer": "SPFM (Single Point Fault Metric) must be > 99% and LFM (Latent Fault Metric) must be > 90%.\n\n### STAR Interview Example\n**Situation**: During the hardware audit of a new Inverter board.\n**Task**: Prove that our random hardware failure rates met ASIL D targets.\n**Action**: I performed a detailed FMEDA (Failure Modes, Effects, and Diagnostic Analysis). I identified components without diagnostics and added a redundant voltage monitor.\n**Result**: The SPFM increased from 97% to 99.2%, and the LFM reached 92%, satisfying the ASIL D requirements.",
         "hint": "SPFM and LFM."
     },
     {
         "id": "latent_fault_definition",
         "topic": "Hardware Safety (Part 5)",
         "question": "What is a 'Latent Fault' in the context of ISO 26262?",
-        "golden_answer": "A Latent Fault is a multiple-point fault where the first fault is NOT detected by a safety mechanism and does not violate the safety goal alone. It lays 'dormant' until a second fault occurs, potentially leading to a hazardous event.\n\nExample: A memory bit flip in a backup safety monitor that isn't read until the primary monitor fails.",
+        "golden_answer": "A Latent Fault is a multiple-point fault that is not detected and doesn't violate a safety goal alone, but creates a hazard if a second fault occurs.\n\n### STAR Interview Example\n**Situation**: While reviewing the safety mechanisms of a Braking ECU.\n**Task**: Identify potential latent faults in the backup power supply path.\n**Action**: I found that the backup battery was only checked once at startup. If it failed during a trip, it wouldn't be known until the main power failed (a second fault).\n**Result**: I implemented a cyclic 10-minute self-test for the backup battery, converting a latent fault into a detectable multiple-point fault.",
         "hint": "A fault that hides until a second one strikes."
     },
     {
         "id": "dependent_failure_analysis",
         "topic": "System Safety (Part 4)",
         "question": "What is DFA (Dependent Failure Analysis) and why do we perform it?",
-        "golden_answer": "DFA identifies Common Cause Failures (CCF) and Cascading Failures that could violate independence/redundancy.\n\nIt proves that your 'Redundant' channels (e.g., Main CPU and Safety MCU) don't share a single point of failure like a shared voltage regulator, clock, or thermal environment.",
+        "golden_answer": "DFA identifies Common Cause Failures (CCF) and Cascading Failures that could violate independence/redundancy.\n\n### STAR Interview Example\n**Situation**: Designing a redundant sensor architecture for an Autonomous driving system.\n**Task**: Confirm that our two 'independent' LiDARs were truly independent.\n**Action**: I performed a DFA and realized both sensors shared the same clock source and power regulator. A single voltage spike could kill both simultaneously.\n**Result**: We separated the power rails and added independent clock oscillators, successfully mitigating the common-cause risk.",
         "hint": "Checking if your redundant systems are truly independent."
     },
     {
         "id": "tool_qualification",
         "topic": "Supporting Processes (Part 8)",
         "question": "When is Software Tool Qualification required?",
-        "golden_answer": "It is required if the tool can introduce or fail to detect errors (TI - Tool Impact) AND we don't have a high confidence that the error will be detected by other means (TD - Tool Detection).\n\nClassified as TCL1 (No qual needed) to TCL3 (High qual needed). For ASIL D code generators (Compiler/Linker), qualification is mandatory.",
+        "golden_answer": "Required if a tool can introduce/fail to detect errors (TI) and detection confidence is low (TD).\n\n### STAR Interview Example\n**Situation**: We switched to a new C-Compiler for an ASIL D project.\n**Task**: Determine if we needed to qualify the compiler.\n**Action**: I performed a Tool Classification. Given it's a code generator for ASIL D, I rated it as TCL3. I followed the 'Validation of Software Tool' method and ran a suite of 10,000 test cases provided by the vendor.\n**Result**: The tool was qualified for use, and the documentation was added to the Safety Case for the final audit.",
         "hint": "TI (Impact) and TD (Detection Levels)."
     }
 ]

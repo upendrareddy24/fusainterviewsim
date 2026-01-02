@@ -3,14 +3,14 @@
         "id": "sotif_area2_area3",
         "topic": "SOTIF - Scenario Categories",
         "question": "In SOTIF (ISO 21448), what is the goal regarding Area 2 (Known Unsafe) and Area 3 (Unknown Unsafe)?",
-        "golden_answer": "SOTIF aims to:\n1. **Minimize Area 2 (Known Unsafe)**: Through design improvements and safety mechanisms.\n2. **Minimize Area 3 (Unknown Unsafe)**: Through extensive excessive testing/validation to move them into Area 2 (Known) or Area 1 (Known Safe).\n\nThe ultimate goal is to validate that the residual risk is acceptable.",
+        "golden_answer": "SOTIF aims to minimize Area 2 (Known Unsafe) through design changes and Area 3 (Unknown Unsafe) through extensive validation.\n\n### STAR Interview Example\n**Situation**: We were developing a Level 2+ Highway Pilot system.\n**Task**: I had to prove the system was safe even for scenarios we hadn't encountered in the first 1 million miles.\n**Action**: I used a combination of scenario-based simulation (PEGASUS method) to find 'Unknown' scenarios (Area 3) and shadow-mode testing to identify 'Known' edge cases (Area 2).\n**Result**: By identifying a specific glare condition (Area 3 to 2), we updated the sensor fusion and successfully reduced the residual risk to an acceptable level.",
         "hint": "Think about the 4 quadrants of knowledge vs safety."
     },
     {
         "id": "triggering_conditions",
         "topic": "Triggering Conditions",
         "question": "Give examples of triggering conditions for an L3 Perception System that are SOTIF concerns but not ISO 26262 faults.",
-        "golden_answer": "SOTIF deals with functional insufficiencies, not hardware faults. Examples:\n1. **Glare/Sun Blindness**: Camera saturated by low sun.\n2. **Radar Ghost Objects**: Reflections from a tunnel wall interpreted as a vehicle.\n3. **Adversarial Noise**: Patterns on a stop sign confusing the classifier.\n\nNone of these are broken hardware (ISO 26262); they are limitations of the sensor/algorithm (SOTIF).",
+        "golden_answer": "SOTIF concerns are functional insufficiencies like sensor glare or radar ghosting, not broken hardware.\n\n### STAR Interview Example\n**Situation**: During test track validation of an Auto-Emergency Braking (AEB) system.\n**Task**: Investigate why the car braked for no reason (Phantom Braking).\n**Action**: I analyzed the radar logs and found that a metal expansion joint on the bridge was creating a 'ghost' stationary object. This wasn't a hardware failure (ISO 26262), but a SOTIF triggering condition.\n**Result**: I worked with the radar supplier to implement a multipath reflection filter, mitigating the SOTIF risk without changing the hardware design.",
         "hint": "Think about sensor limitations, not broken wires."
     }
 ]
