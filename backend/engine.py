@@ -11,7 +11,7 @@ class InterviewEngine:
         print("Initializing FuSa Interview Engine...")
         self.mode = "CHECKING"
         
-        # 1. Try External API (Gemini)
+        # 1. Try Google Gemini (Primary)
         self.api_key = os.getenv("GEMINI_API_KEY")
         if self.api_key:
             try:
@@ -22,24 +22,29 @@ class InterviewEngine:
                 self.mode = "CLOUD_AI"
                 print(">> Mode: CLOUD AI (Gemini)")
             except Exception as e:
-                print(f"!! Cloud AI Failed: {e}")
+                print(f"!! Gemini Failed: {e}")
                 self.mode = "FALLBACK_CHECK"
         else:
             self.mode = "FALLBACK_CHECK"
 
-        # 2. Try Local LLM (Ollama)
+        # 2. Try Grok API (xAI) (Secondary)
         if self.mode == "FALLBACK_CHECK":
-            try:
-                # Check if Ollama is running on default port
-                resp = requests.get("http://localhost:11434/", timeout=2)
-                if resp.status_code == 200:
-                    self.mode = "LOCAL_LLM"
-                    print(">> Mode: LOCAL LLM (Ollama)")
-                else:
+            self.grok_key = os.getenv("GROK_API_KEY") 
+            if self.grok_key:
+                try:
+                    self.grok_headers = {
+                        "Authorization": f"Bearer {self.grok_key}",
+                        "Content-Type": "application/json"
+                    }
+                    self.mode = "GROK_API"
+                    print(">> Mode: CLOUD AI (Grok/xAI)")
+                except Exception as e:
+                    print(f"!! Grok AI Failed: {e}")
                     self.mode = "STATIC"
-            except:
+            else:
                 self.mode = "STATIC"
-                
+
+        # 3. Static Fallback
         if self.mode == "STATIC":
             print(">> Mode: STATIC (Offline / In-Built)")
             self.load_static_data()
@@ -69,7 +74,10 @@ class InterviewEngine:
     def get_interviewer_response(self, session: CandidateSession, user_input: str) -> str:
         """Dispatcher for generating responses based on active mode."""
         try:
-            if self.mode == "CLOUD_AI":
+        try:
+            if self.mode == "GROK_API":
+                return self._generate_grok_response(session, user_input)
+            elif self.mode == "CLOUD_AI":
                 return self._generate_cloud_response(session, user_input)
             elif self.mode == "LOCAL_LLM":
                 return self._generate_local_response(session, user_input)
@@ -80,6 +88,38 @@ class InterviewEngine:
             self.mode = "STATIC"
             if not self.questions["iso26262"]:
                 self.load_static_data()
+            return self._generate_static_response(session, user_input)
+    
+    def _generate_grok_response(self, session: CandidateSession, user_input: str) -> str:
+        # Check for Show Answer
+        if "answer" in user_input.lower() and ("give me" in user_input.lower() or "show" in user_input.lower()):
+            user_input = "Identify the question I (the user) just asked in context and give me the perfect Golden Answer for it."
+            
+        url = "https://api.x.ai/v1/chat/completions"
+        
+        system_prompt = f"You are a strict Functional Safety Assessor (ISO 26262, SOTIF, Cybersecurity). Topic: {session.topic_focus}. Role: {session.target_role}. Level: {session.target_level}. Be professional, tough, but constructive. Do not just compliment; ask follow-up questions."
+        
+        data = {
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                *session.current_state.history[-5:], # Context Limit
+                {"role": "user", "content": user_input}
+            ],
+            "model": "grok-beta", # or grok-custom if available
+            "stream": False,
+            "temperature": 0.7
+        }
+        
+        try:
+            response = requests.post(url, headers=self.grok_headers, json=data, timeout=10)
+            if response.status_code == 200:
+                return response.json()['choices'][0]['message']['content']
+            else:
+                print(f"Grok API Error: {response.text}")
+                # Fallback to Static if quota exceeded
+                return self._generate_static_response(session, user_input)
+        except Exception as e:
+            print(f"Grok Net Error: {e}")
             return self._generate_static_response(session, user_input)
 
     def _generate_cloud_response(self, session: CandidateSession, user_input: str) -> str:
