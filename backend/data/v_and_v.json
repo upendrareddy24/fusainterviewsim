@@ -1,0 +1,16 @@
+[
+    {
+        "id": "xil_testing",
+        "topic": "X-in-the-Loop Testing",
+        "question": "Differentiate between MIL, SIL, PIL, and HIL testing stages.",
+        "golden_answer": "1. **MIL (Model-in-the-Loop)**: Testing the logic model (e.g., Simulink) in simulation.\n2. **SIL (Software-in-the-Loop)**: Testing the generated C-code on the host PC.\n3. **PIL (Processor-in-the-Loop)**: Running code on the target processor (or emulator) to check timing/stack usage.\n4. **HIL (Hardware-in-the-Loop)**: Running the real ECU with real I/O connected to a real-time plant model (e.g., dSPACE/NI rig).",
+        "hint": "Model -> Software -> Processor -> Hardware."
+    },
+    {
+        "id": "verification_vs_validation",
+        "topic": "Verification vs Validation",
+        "question": "What is the core difference between Verification and Validation?",
+        "golden_answer": "**Verification**: 'Are we building the product right?' (Conforming to requirements/specs).\n**Validation**: 'Are we building the right product?' (Does it meet the user's needs/goals in the real world?).\n\nExample: Verification checks if the AEB triggers at 20m. Validation checks if the AEB actually stops the car before hitting a pedestrian in snow.",
+        "hint": "Building it right vs. Building the right thing."
+    }
+]

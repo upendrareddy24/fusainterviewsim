@@ -3,13 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import uuid
+from typing import Dict
 
 from .models import CandidateSession, InterviewState
-from .engine import SafetyInterviewEngine
-from .personas import SAFETY_PERSONAS
-from .storage import load_session, save_session
+from .engine import InterviewEngine
 
-app = FastAPI(title="ISO 26262 Safety Interviewer")
+app = FastAPI(title="FuSa Interview Simulator Pro")
 
 app.add_middleware(
     CORSMiddleware,
@@ -18,36 +17,37 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# No more global dictionary "sessions". We load on demand.
+# In-memory session storage (Reliable)
+sessions: Dict[str, CandidateSession] = {}
 engine = None
 
 @app.on_event("startup")
 async def startup_event():
     global engine
     try:
-        engine = SafetyInterviewEngine()
-        print("Safety Engine Initialized (Hybrid Mode)")
+        engine = InterviewEngine()
+        print("Engine Initialized")
     except Exception as e:
         print(f"Engine Init Error: {e}")
         engine = None 
 
 @app.get("/health")
 async def health_check():
-    return {"status": "operational", "mode": "hybrid", "storage": "sqlite"}
+    return {"status": "operational", "mode": engine.mode if engine else "offline"}
 
-@app.post("/audit/start")
-async def start_audit(
+@app.post("/session/start")
+async def start_session(
     target_role: str = Body(...),
     target_level: str = Body(...),
     experience_years: int = Body(...),
-    topic_focus: str = Body("ADAS")
+    topic_focus: str = Body("ISO 26262") # Configurable topic
 ):
+    if engine is None:
+        raise HTTPException(status_code=503, detail="Engine not ready")
+
     session_id = str(uuid.uuid4())
     
-    initial_state = InterviewState(
-        total_rounds=5,
-        current_phase="Init/HARA"
-    )
+    initial_state = InterviewState()
     
     session = CandidateSession(
         session_id=session_id,
@@ -58,34 +58,40 @@ async def start_audit(
         current_state=initial_state
     )
     
-    # Generate Auditor's opening statement
-    intro = engine.get_interviewer_response(session, f"Begin the audit for {target_role} ({target_level}). Focus on {topic_focus}. State your authority.")
+    # Generate First Question
+    intro = engine.get_interviewer_response(session, "START_ROUND")
     
     session.current_state.history.append({"role": "interviewer", "content": intro})
-    
-    # Save to DB
-    save_session(session)
+    sessions[session_id] = session
     
     return {"session_id": session_id, "interviewer_message": intro}
 
-@app.post("/audit/{session_id}/respond")
-async def respond(session_id: str, candidate_response: str = Body(...)):
-    # Load session from DB (Stateless scaling)
-    session = load_session(session_id)
-
-    if not session:
-        raise HTTPException(status_code=404, detail="Audit session not found")
+@app.post("/session/{session_id}/respond")
+async def respond(session_id: str, candidate_message: str = Body(...)):
+    if session_id not in sessions:
+        raise HTTPException(status_code=404, detail="Session not found")
     
-    session.current_state.history.append({"role": "candidate", "content": candidate_response})
+    session = sessions[session_id]
     
-    response = engine.get_interviewer_response(session, candidate_response)
+    # User message
+    session.current_state.history.append({"role": "candidate", "content": candidate_message})
+    
+    # AI response
+    response = engine.get_interviewer_response(session, candidate_message)
     session.current_state.history.append({"role": "interviewer", "content": response})
-    
-    # Save state
-    save_session(session)
     
     return {"interviewer_message": response}
 
+@app.post("/session/{session_id}/evaluate")
+async def evaluate(session_id: str):
+    if session_id not in sessions:
+        raise HTTPException(status_code=404, detail="Session not found")
+    
+    session = sessions[session_id]
+    evaluation = engine.evaluate_round(session)
+    return evaluation
+
+# Serve Frontend
 @app.get("/")
 async def read_root():
     return FileResponse('frontend/index.html')

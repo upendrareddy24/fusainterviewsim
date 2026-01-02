@@ -1,0 +1,16 @@
+[
+    {
+        "id": "unsafe_control_actions",
+        "topic": "STPA - UCAs",
+        "question": "In STPA, what are the four types of Unsafe Control Actions (UCAs)?",
+        "golden_answer": "1. **Not providing** the control action when control action is required (e.g., Not braking when obstacle detected).\n2. **Providing** the control action when it is NOT required (e.g., Braking on empty road).\n3. **Providing** the control action **too early, too late, or out of sequence**.\n4. **Stopping** the control action too soon or applying it too long.",
+        "hint": "Not provided, Provided incorrectly, Timing, Duration."
+    },
+    {
+        "id": "stpa_vs_fmea",
+        "topic": "STPA vs FMEA",
+        "question": "Why use STPA over potential traditional FMEA for complex autonomous systems?",
+        "golden_answer": "FMEA (Failure Mode and Effecs Analysis) focuses on component failures (bottom-up). It assumes the requirements are correct.\n\nSTPA (System-Theoretic Process Analysis) focuses on interaction accidents (top-down). It catches unsafe interactions even if no component 'failed' (e.g., perfectly working radar + perfectly working planner = collision due to bad logic). Ideal for software-intensive SoS.",
+        "hint": "Component failure vs. Interaction problems."
+    }
+]

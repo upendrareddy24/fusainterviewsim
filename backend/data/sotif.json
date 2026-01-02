@@ -1,0 +1,16 @@
+[
+    {
+        "id": "sotif_area2_area3",
+        "topic": "SOTIF - Scenario Categories",
+        "question": "In SOTIF (ISO 21448), what is the goal regarding Area 2 (Known Unsafe) and Area 3 (Unknown Unsafe)?",
+        "golden_answer": "SOTIF aims to:\n1. **Minimize Area 2 (Known Unsafe)**: Through design improvements and safety mechanisms.\n2. **Minimize Area 3 (Unknown Unsafe)**: Through extensive excessive testing/validation to move them into Area 2 (Known) or Area 1 (Known Safe).\n\nThe ultimate goal is to validate that the residual risk is acceptable.",
+        "hint": "Think about the 4 quadrants of knowledge vs safety."
+    },
+    {
+        "id": "triggering_conditions",
+        "topic": "Triggering Conditions",
+        "question": "Give examples of triggering conditions for an L3 Perception System that are SOTIF concerns but not ISO 26262 faults.",
+        "golden_answer": "SOTIF deals with functional insufficiencies, not hardware faults. Examples:\n1. **Glare/Sun Blindness**: Camera saturated by low sun.\n2. **Radar Ghost Objects**: Reflections from a tunnel wall interpreted as a vehicle.\n3. **Adversarial Noise**: Patterns on a stop sign confusing the classifier.\n\nNone of these are broken hardware (ISO 26262); they are limitations of the sensor/algorithm (SOTIF).",
+        "hint": "Think about sensor limitations, not broken wires."
+    }
+]

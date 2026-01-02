@@ -4,145 +4,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Functional Safety Interviewer</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@500;700&display=swap"
-        rel="stylesheet">
+    <title>Automotive Safety Architect Verify</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #cbd5e1;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-msg {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Automotive HUD Accents */
+        .hud-border {
+            border-left: 2px solid #3b82f6;
+        }
+
+        .hud-border-user {
+            border-right: 2px solid #10b981;
+        }
+    </style>
 </head>
 
-<body>
-    <div class="audit-container">
-        <!-- Header -->
-        <header class="audit-header">
-            <div class="logo">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-                Safety Interview Sim
-            </div>
-            <div class="status-panel">
-                <span class="status-item">ISO 26262 Compliant</span>
-                <span class="status-item">AI-Powered</span>
-            </div>
-        </header>
+<body class="h-screen flex flex-col overflow-hidden">
 
-        <!-- Configuration Panel -->
-        <div id="config-panel" class="panel">
-            <h2>Start New Interview Session</h2>
-            <div class="form-group">
-                <label>Select Your Assessor (Marketplace)</label>
-                <!-- Hidden Input to store selection -->
-                <input type="hidden" id="roleSelect" value="safety_assessor">
-
-                <div class="expert-grid">
-                    <!-- Card 1: The Chief Architect -->
-                    <div class="expert-card selected" onclick="selectExpert(this, 'functional_safety_engineer')">
-                        <div class="expert-avatar">🛡️</div>
-                        <div class="expert-role">Chief Architect</div>
-                        <div class="expert-meta">Ex-TUV SUD • 50 Yrs</div>
-                        <div class="expert-rating">★ 5.0 <span class="review-count">(128 reviews)</span></div>
-                        <div class="expert-tag">High Severity Audit</div>
-                    </div>
-
-                    <!-- Card 2: Systems Lead -->
-                    <div class="expert-card" onclick="selectExpert(this, 'systems_engineer')">
-                        <div class="expert-avatar">⚙️</div>
-                        <div class="expert-role">Systems Lead</div>
-                        <div class="expert-meta">Ex-Bosch • 15 Yrs</div>
-                        <div class="expert-rating">★ 4.9 <span class="review-count">(84 reviews)</span></div>
-                        <div class="expert-tag">V-Model Guardian</div>
-                    </div>
-
-                    <!-- Card 3: Requirements Manager -->
-                    <div class="expert-card" onclick="selectExpert(this, 'requirements_engineer')">
-                        <div class="expert-avatar">📋</div>
-                        <div class="expert-role">Reqs Manager</div>
-                        <div class="expert-meta">ASPICE L3 Assessor</div>
-                        <div class="expert-rating">★ 4.8 <span class="review-count">(56 reviews)</span></div>
-                        <div class="expert-tag">DOORS Traceability</div>
-                    </div>
-
-                    <!-- Card 4: Validation Lead -->
-                    <div class="expert-card" onclick="selectExpert(this, 'validation_engineer')">
-                        <div class="expert-avatar">💥</div>
-                        <div class="expert-role">Validation Head</div>
-                        <div class="expert-meta">Ex-Waymo • HIL Lead</div>
-                        <div class="expert-rating">★ 5.0 <span class="review-count">(92 reviews)</span></div>
-                        <div class="expert-tag">Fault Injection</div>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Level</label>
-                <select id="level">
-                    <option value="L3">L3 (Junior)</option>
-                    <option value="L4">L4 (Senior)</option>
-                    <option value="L5">L5 (Principal)</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Domain Focus</label>
-                <select id="topic">
-                    <option value="ADAS">ADAS / Autonomy</option>
-                    <option value="Steering">EPS / Steering</option>
-                    <option value="Braking">E-Brake / Chassis</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Experience (Years)</label>
-                <input type="number" id="exp" value="5" min="1" max="20">
-            </div>
-            <button id="start-btn" onclick="startAudit()">Begin Interview</button>
+    <!-- Header -->
+    <header class="h-16 border-b border-gray-800 flex items-center justify-between px-6 bg-[#020617]">
+        <div class="flex items-center gap-2">
+            <div class="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+            <h1 class="text-xl font-bold tracking-tight text-white">FuSa<span class="text-blue-500">Sim</span> <span
+                    class="text-xs text-gray-400 font-normal">Automotive Intelligence</span></h1>
         </div>
+        <div class="text-xs text-gray-500">ISO 26262 | ISO 21448 | ISO 21434</div>
+    </header>
 
-        <!-- Interface -->
-        <div id="interface-panel" class="panel" style="display: none;">
-            <div class="chat-area" id="messagelog">
-                <div class="message system">
-                    System: Secure connection established. Initializing Safety Assessor...
+    <!-- Config Modal (Overlay) -->
+    <div id="config-modal" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+        <div class="glass w-full max-w-lg p-8 rounded-2xl shadow-2xl relative overflow-hidden">
+            <!-- Decorative circle -->
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-blue-600/20 rounded-full blur-2xl"></div>
+
+            <h2 class="text-2xl font-bold text-white mb-6 relative z-10">Configure Audit Session</h2>
+
+            <div class="space-y-4 relative z-10">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Target Role</label>
+                    <input type="text" id="setup-role" value="Functional Safety Engineer"
+                        class="w-full bg-gray-800 border-none rounded p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
-            </div>
 
-            <div class="input-area">
-                <button id="mic-btn" class="icon-btn" onclick="toggleMic()" title="Enable Microphone">🎤</button>
-                <button id="speaker-btn" class="icon-btn active" onclick="toggleSpeaker()"
-                    title="Mute/Unmute">🔊</button>
-                <textarea id="user-input" placeholder="Type your response here... (or use microphone)"></textarea>
-                <button id="send-btn" onclick="sendResponse()">Send</button>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Standard / Domain</label>
+                    <select id="setup-focus"
+                        class="w-full bg-gray-800 border-none rounded p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="ISO 26262 (Functional Safety)">ISO 26262 (Functional Safety)</option>
+                        <option value="ISO 21448 (SOTIF)">ISO 21448 (SOTIF)</option>
+                        <option value="ISO 21434 (Cybersecurity)">ISO 21434 (Cybersecurity)</option>
+                        <option value="STPA (System Safety)">STPA (System Safety)</option>
+                        <option value="V&V (Testing Strategy)">V&V (Testing Strategy)</option>
+                    </select>
+                </div>
+
+                <div class="flex gap-4">
+                    <div class="w-1/2">
+                        <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Level</label>
+                        <select id="setup-level"
+                            class="w-full bg-gray-800 border-none rounded p-3 text-white outline-none">
+                            <option value="L3">L3 (Junior)</option>
+                            <option value="L4" selected>L4 (Senior)</option>
+                            <option value="L5">L5 (Architect)</option>
+                        </select>
+                    </div>
+                    <div class="w-1/2">
+                        <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Exp (Yrs)</label>
+                        <input type="number" id="setup-exp" value="5"
+                            class="w-full bg-gray-800 border-none rounded p-3 text-white outline-none">
+                    </div>
+                </div>
+
+                <button onclick="startSession()"
+                    class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-blue-500/20 mt-4">
+                    INITIATE SIMULATION
+                </button>
             </div>
         </div>
     </div>
 
-    <div class="artifact-panel">
-        <h3 class="artifact-h3">Information & Artifacts</h3>
-        <div class="artifact-placeholder">
-            <div>
-                <p>System Architecture Viewer</p>
-                <small>(Submit text descriptions for analysis)</small>
+    <!-- Main Workspace -->
+    <main class="flex-1 flex overflow-hidden">
+        <!-- Chat Area -->
+        <div class="flex-1 flex flex-col relative">
+            <div id="messages" class="flex-1 overflow-y-auto p-6 space-y-6 pb-24 scroll-smooth">
+                <!-- Messages Injected Here -->
+            </div>
+
+            <!-- Input Area -->
+            <div
+                class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#0f172a] via-[#0f172a] to-transparent">
+                <div class="glass rounded-xl p-2 flex items-center gap-2">
+                    <input type="text" id="user-input"
+                        class="flex-1 bg-transparent border-none text-white px-4 py-2 focus:outline-none placeholder-gray-600"
+                        placeholder="Type answer or 'Show Answer'..." autocomplete="off">
+                    <button onclick="sendMessage()"
+                        class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
+                        SEND
+                    </button>
+                    <button onclick="terminateSession()"
+                        class="bg-red-900/50 hover:bg-red-800/80 text-red-200 px-3 py-2 rounded-lg text-sm transition-colors border border-red-900">
+                        END
+                    </button>
+                </div>
+                <div class="text-center mt-2 text-xs text-gray-600">
+                    Pro Tip: Type <strong>"Show Answer"</strong> if you are stuck to see the Golden Answer.
+                </div>
             </div>
         </div>
-        <div class="metrics">
-            <h4>Live Assessment Metrics</h4>
-            <div class="metric-row"><span>SPFM (Single Point Fault Metric)</span>
-                <div class="bar-container">
-                    <div class="bar" style="width: 90%"></div>
+    </main>
+
+    <!-- Evaluation Modal -->
+    <div id="eval-modal" class="fixed inset-0 bg-black/95 z-50 hidden overflow-y-auto p-8">
+        <div class="max-w-4xl mx-auto space-y-8">
+            <h2 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
+                Audit Report</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Scorecard -->
+                <div class="glass p-6 rounded-xl">
+                    <h3 class="text-lg font-semibold text-white mb-4 border-b border-gray-700 pb-2">Competency Matrix
+                    </h3>
+                    <div id="scorecard-container" class="space-y-3">
+                        <!-- Injected -->
+                    </div>
+                </div>
+
+                <!-- Feedback -->
+                <div class="glass p-6 rounded-xl space-y-4">
+                    <div>
+                        <div class="text-xs text-gray-500 uppercase tracking-wider">Verdict</div>
+                        <div id="verdict" class="text-2xl font-bold text-white">Pending</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-gray-500 uppercase tracking-wider">Detailed Findings</div>
+                        <p id="feedback-text" class="text-gray-300 text-sm leading-relaxed mt-1"></p>
+                    </div>
                 </div>
             </div>
-            <div class="metric-row"><span>LFM (Latent Fault Metric)</span>
-                <div class="bar-container">
-                    <div class="bar" style="width: 60%"></div>
-                </div>
+
+            <div class="glass p-6 rounded-xl border border-blue-500/20">
+                <h3 class="font-semibold text-blue-400 mb-2">Improvement Roadmap</h3>
+                <p id="roadmap-text" class="text-sm text-gray-300"></p>
             </div>
-            <div class="metric-row"><span>PMHF (Probabilistic Metric)</span>
-                <div class="bar-container">
-                    <div class="bar" style="width: 10%"></div>
-                </div>
-            </div>
+
+            <button onclick="location.reload()"
+                class="bg-gray-800 hover:bg-gray-700 text-white px-8 py-3 rounded-lg w-full">Start New Session</button>
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <!-- Client Logic -->
+    <script>
+        const API_BASE = window.location.origin; // Dynamically grab host
+        let sessionId = null;
+        const inputField = document.getElementById('user-input');
+        const msgsDiv = document.getElementById('messages');
+
+        // Allow Enter key
+        inputField.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        async function startSession() {
+            const role = document.getElementById('setup-role').value;
+            const focus = document.getElementById('setup-focus').value;
+            const level = document.getElementById('setup-level').value;
+            const exp = document.getElementById('setup-exp').value;
+
+            document.getElementById('config-modal').style.display = 'none';
+
+            try {
+                const res = await fetch(`${API_BASE}/session/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        target_role: role,
+                        topic_focus: focus,
+                        target_level: level,
+                        experience_years: parseInt(exp)
+                    })
+                });
+                const data = await res.json();
+                sessionId = data.session_id;
+                addMessage('interviewer', data.interviewer_message);
+            } catch (e) {
+                alert("Connection Error. Ensure Backed is running.");
+                location.reload();
+            }
+        }
+
+        async function sendMessage() {
+            const text = inputField.value.trim();
+            if (!text || !sessionId) return;
+
+            addMessage('candidate', text);
+            inputField.value = '';
+
+            try {
+                const res = await fetch(`${API_BASE}/session/${sessionId}/respond`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ candidate_message: text })
+                }); // Note: Backend expects generic 'candidate_message' key or body? 
+                // My backend engine.py defined standard Body... wait. 
+                // Looking at main.py: respond(..., candidate_message: str = Body(...))
+                // This means expected body is just the string if media_type is text/plain OR JSON {"candidate_message": "..."}
+
+                const data = await res.json();
+                addMessage('interviewer', data.interviewer_message);
+            } catch (e) {
+                addMessage('system', "Error connecting to AI.");
+            }
+        }
+
+        async function terminateSession() {
+            if (!confirm("End Audit?")) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/session/${sessionId}/evaluate`, { method: 'POST' });
+                const data = await res.json();
+                showReport(data);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function addMessage(role, text) {
+            const div = document.createElement('div');
+            div.className = `chat-msg flex w-full ${role === 'candidate' ? 'justify-end' : 'justify-start'}`;
+
+            const bubble = document.createElement('div');
+            bubble.className = `max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed shadow-md ${role === 'candidate'
+                    ? 'bg-blue-600 text-white rounded-tr-none hud-border-user'
+                    : 'bg-slate-800 text-gray-200 rounded-tl-none hud-border'
+                }`;
+
+            // Render Markdown-ish (Simple bold/newline)
+            bubble.innerHTML = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+                .replace(/### (.*?)\n/g, '<h3 class="text-blue-400 font-bold mb-2">$1</h3>') // Header
+                .replace(/\n/g, '<br>');
+
+            div.appendChild(bubble);
+            msgsDiv.appendChild(div);
+            msgsDiv.scrollTop = msgsDiv.scrollHeight;
+        }
+
+        function showReport(data) {
+            document.getElementById('eval-modal').style.display = 'block';
+
+            // Scorecard
+            const sc = document.getElementById('scorecard-container');
+            sc.innerHTML = '';
+            for (const [k, v] of Object.entries(data.scorecard)) {
+                sc.innerHTML += `
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-400">${k}</span>
+                        <div class="flex gap-1">
+                            ${[1, 2, 3, 4, 5].map(i =>
+                    `<div class="w-8 h-2 rounded-full ${i <= v ? 'bg-blue-500' : 'bg-gray-700'}"></div>`
+                ).join('')}
+                        </div>
+                    </div>`;
+            }
+
+            document.getElementById('verdict').innerText = data.hiring_recommendation;
+            document.getElementById('feedback-text').innerText = data.detailed_feedback;
+            document.getElementById('roadmap-text').innerText = data.improvement_plan;
+        }
+    </script>
 </body>
 
 </html>

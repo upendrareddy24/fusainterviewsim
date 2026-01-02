@@ -1,0 +1,16 @@
+[
+    {
+        "id": "tara_steps",
+        "topic": "TARA (Threat Analysis and Risk Assessment)",
+        "question": "What are the key steps in a TARA according to ISO 21434?",
+        "golden_answer": "1. **Asset Identification**: What are we protecting? (e.g., Cryptographic keys, Braking signal).\n2. **Threat Scenario Identification**: How can it be compromised? (e.g., Spoofing CAN messages).\n3. **Impact Rating**: SFOP (Safety, Financial, Operational, Privacy).\n4. **Attack Path Analysis**: How feasible is the attack?\n5. **Risk Determination**: Combining Impact and Feasibility to determine the Risk Level (CAL).",
+        "hint": "Assets -> Threats -> Impact -> Feasibility -> Risk."
+    },
+    {
+        "id": "cia_triad_automotive",
+        "topic": "CIA Triad",
+        "question": "How does the CIA triad apply to automotive CAN bus communication?",
+        "golden_answer": "1. **Confidentiality**: Not usually critical on CAN (signals are broadcast), but critical for Keys/Personal Data.\n2. **Integrity**: CRITICAL. Ensuring the 'Brake' signal actually came from the Brake ECU (preventing spoofing). Solved via SecOC (CMAC).\n3. **Availability**: CRITICAL. Preventing DoS attacks that flood the bus and delay braking.",
+        "hint": "Confidentiality, Integrity, Availability."
+    }
+]

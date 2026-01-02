@@ -1,0 +1,23 @@
+[
+    {
+        "id": "iso26262_asil_determination",
+        "topic": "ISO 26262 - Concept Phase",
+        "question": "How do you determine the ASIL (Automotive Safety Integrity Level) for a specific vehicle function? Walk me through the parameters.",
+        "golden_answer": "ASIL is determined by three parameters: Severity (S), Exposure (E), and Controllability (C).\n\n1. **Severity (S0-S3)**: Harm to the driver/passenger/pedestrian.\n2. **Exposure (E0-E4)**: Probability of the operational scenario occurring.\n3. **Controllability (C0-C3)**: Ability of the driver to avoid the accident.\n\nExample: Loss of steering at high speed is S3, E4, C3 -> ASIL D.",
+        "hint": "Think about S, E, and C."
+    },
+    {
+        "id": "hara_process",
+        "topic": "Hazard Analysis and Risk Assessment (HARA)",
+        "question": "Explain the HARA process in ISO 26262 Part 3. What are the outputs?",
+        "golden_answer": "HARA involves:\n1. **Item Definition**: Defining the system boundaries.\n2. **Hazard Identification**: Using HAZOP or Brainstorming.\n3. **Risk Classification**: Assigning S, E, C to derive ASIL.\n4. **Safety Goals**: Top-level requirements to mitigate hazardous events.\n\nOutput: Safety Goals and ASIL ratings.",
+        "hint": "Start from Item Definition and end with Safety Goals."
+    },
+    {
+        "id": "fault_tolerant_time_interval",
+        "topic": "Safety Mechanisms",
+        "question": "What is the Fault Tolerant Time Interval (FTTI) and why is it critical?",
+        "golden_answer": "FTTI is the time span in which a fault must be detected AND the system must transition to a safe state (or the driver takes control) before a hazardous event occurs. \n\nFormula: FTTI = Fault Detection Time + Reaction Time.\nIf System Reaction > FTTI, the design is unsafe.",
+        "hint": "It's the race between detecting the fault and the accident happening."
+    }
+]
