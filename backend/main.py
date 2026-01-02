@@ -67,7 +67,7 @@ async def start_session(
     return {"session_id": session_id, "interviewer_message": intro}
 
 @app.post("/session/{session_id}/respond")
-async def respond(session_id: str, candidate_message: str = Body(...)):
+async def respond(session_id: str, candidate_message: str = Body(..., embed=True)):
     if session_id not in sessions:
         raise HTTPException(status_code=404, detail="Session not found")
     
