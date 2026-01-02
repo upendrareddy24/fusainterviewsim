@@ -125,7 +125,14 @@
                 <div class="glass rounded-xl p-2 flex items-center gap-2">
                     <input type="text" id="user-input"
                         class="flex-1 bg-transparent border-none text-white px-4 py-2 focus:outline-none placeholder-gray-600"
-                        placeholder="Type answer or 'Show Answer'..." autocomplete="off">
+                        placeholder="Type answer or click 'Show Answer'..." autocomplete="off">
+
+                    <button onclick="sendShowAnswer()"
+                        class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-semibold transition-colors whitespace-nowrap hidden md:block"
+                        title="Reveal Golden Answer">
+                        🔍 SHOW ANSWER
+                    </button>
+
                     <button onclick="sendMessage()"
                         class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
                         SEND
@@ -136,7 +143,7 @@
                     </button>
                 </div>
                 <div class="text-center mt-2 text-xs text-gray-600">
-                    Pro Tip: Type <strong>"Show Answer"</strong> if you are stuck to see the Golden Answer.
+                    Pro Tip: Click <strong>Show Answer</strong> if you are stuck to see the detailed evaluation.
                 </div>
             </div>
         </div>
@@ -221,28 +228,32 @@
             }
         }
 
-        async function sendMessage() {
-            const text = inputField.value.trim();
+        async function sendMessage(overrideText = null) {
+            const text = overrideText || inputField.value.trim();
             if (!text || !sessionId) return;
 
-            addMessage('candidate', text);
-            inputField.value = '';
+            if (!overrideText) {
+                inputField.value = '';
+                addMessage('candidate', text);
+            } else {
+                addMessage('candidate', "Please show me the answer.");
+            }
 
             try {
                 const res = await fetch(`${API_BASE}/session/${sessionId}/respond`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ candidate_message: text })
-                }); // Note: Backend expects generic 'candidate_message' key or body? 
-                // My backend engine.py defined standard Body... wait. 
-                // Looking at main.py: respond(..., candidate_message: str = Body(...))
-                // This means expected body is just the string if media_type is text/plain OR JSON {"candidate_message": "..."}
-
+                });
                 const data = await res.json();
                 addMessage('interviewer', data.interviewer_message);
             } catch (e) {
                 addMessage('system', "Error connecting to AI.");
             }
+        }
+
+        function sendShowAnswer() {
+            sendMessage("Show Answer");
         }
 
         async function terminateSession() {
@@ -263,8 +274,8 @@
 
             const bubble = document.createElement('div');
             bubble.className = `max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed shadow-md ${role === 'candidate'
-                    ? 'bg-blue-600 text-white rounded-tr-none hud-border-user'
-                    : 'bg-slate-800 text-gray-200 rounded-tl-none hud-border'
+                ? 'bg-blue-600 text-white rounded-tr-none hud-border-user'
+                : 'bg-slate-800 text-gray-200 rounded-tl-none hud-border'
                 }`;
 
             // Render Markdown-ish (Simple bold/newline)
