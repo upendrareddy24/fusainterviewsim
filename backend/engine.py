@@ -79,6 +79,9 @@ class InterviewEngine:
             with open(os.path.join(data_dir, "cybersecurity.json"), "r") as f: self.questions["cybersecurity"] = json.load(f)
             with open(os.path.join(data_dir, "stpa.json"), "r") as f: self.questions["stpa"] = json.load(f)
             with open(os.path.join(data_dir, "v_and_v.json"), "r") as f: self.questions["v_and_v"] = json.load(f)
+            # Ensure randomness
+            for key in self.questions:
+                random.shuffle(self.questions[key])
         except Exception as e:
             print(f"!! Failed to load static data: {e}.")
 
@@ -185,11 +188,23 @@ class InterviewEngine:
             questions = self.questions.get(topic_key, [])
             if not questions: return "Error: No questions loaded."
             
-            q = random.choice(questions)
+            # Avoid repeating the immediate last question if possible
+            last_problem_id = None
+            for msg in reversed(session.current_state.history):
+                if "PROBLEM_ID" in msg.get("content", ""):
+                    last_problem_id = msg["content"].split(":")[1]
+                    break
+            
+            eligible = [q for q in questions if q["id"] != last_problem_id]
+            if not eligible: eligible = questions
+            
+            q = random.choice(eligible)
             # Store ID in history for retrieval
             session.current_state.history.append({"role": "system", "content": f"PROBLEM_ID:{q['id']}:{topic_key}"})
             
-            return f"### {q['topic']}\n\n**{q['question']}**"
+            intros = ["Let's dive into", "Can you explain", "Here is a challenge regarding", "Tell me about", "Next:"]
+            intro = random.choice(intros)
+            return f"### {q['topic']}\n\n{intro} **{q['question']}**"
 
         # 2. Show Answer Logic
         if "answer" in user_input.lower() and ("show" in user_input.lower() or "give" in user_input.lower() or "tell" in user_input.lower()):

@@ -140,6 +140,12 @@
                         🔍 SHOW ANSWER
                     </button>
 
+                    <button onclick="sendNextQuestion()"
+                        class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-lg font-semibold transition-colors whitespace-nowrap"
+                        title="Get Next Question">
+                        ⏩ NEXT
+                    </button>
+
                     <button onclick="sendMessage()"
                         class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
                         SEND
@@ -150,7 +156,7 @@
                     </button>
                 </div>
                 <div class="text-center mt-2 text-xs text-gray-600">
-                    Pro Tip: Click <strong>Show Answer</strong> if you are stuck to see the detailed evaluation.
+                    Pro Tip: Click <strong>Next</strong> to proceed or <strong>Show Answer</strong> if you are stuck.
                 </div>
             </div>
         </div>
@@ -261,6 +267,10 @@
 
         function sendShowAnswer() {
             sendMessage("Show Answer");
+        }
+
+        function sendNextQuestion() {
+            sendMessage("Next Question");
         }
 
         async function terminateSession() {
