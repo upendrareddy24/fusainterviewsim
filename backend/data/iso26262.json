@@ -1,7 +1,7 @@
 [
     {
         "id": "iso26262_asil_determination",
-        "topic": "ISO 26262 - Concept Phase",
+        "topic": "ISO 26262 - Concept Phase (Part 3)",
         "question": "How do you determine the ASIL (Automotive Safety Integrity Level) for a specific vehicle function? Walk me through the parameters.",
         "golden_answer": "ASIL is determined by three parameters: Severity (S), Exposure (E), and Controllability (C).\n\n1. **Severity (S0-S3)**: Harm to the driver/passenger/pedestrian.\n2. **Exposure (E0-E4)**: Probability of the operational scenario occurring.\n3. **Controllability (C0-C3)**: Ability of the driver to avoid the accident.\n\nExample: Loss of steering at high speed is S3, E4, C3 -> ASIL D.",
         "hint": "Think about S, E, and C."
@@ -15,9 +15,51 @@
     },
     {
         "id": "fault_tolerant_time_interval",
-        "topic": "Safety Mechanisms",
+        "topic": "Safety Concept (System)",
         "question": "What is the Fault Tolerant Time Interval (FTTI) and why is it critical?",
         "golden_answer": "FTTI is the time span in which a fault must be detected AND the system must transition to a safe state (or the driver takes control) before a hazardous event occurs. \n\nFormula: FTTI = Fault Detection Time + Reaction Time.\nIf System Reaction > FTTI, the design is unsafe.",
         "hint": "It's the race between detecting the fault and the accident happening."
+    },
+    {
+        "id": "freedom_from_interference",
+        "topic": "Software Safety (Part 6)",
+        "question": "Explain the concept of 'Freedom from Interference' (FFI) in a mixed-criticality system.",
+        "golden_answer": "FFI ensures that elements with lower ASIL (or QM) do not corrupt or block the execution of elements with higher ASIL. \n\nThree types of interference to check:\n1. **Spatial**: Memory corruption (MPU protection needed).\n2. **Temporal**: Timing/Execution blocking (Watchdogs, Scheduling).\n3. **Communication**: Corrupted data exchange (E2E protection).",
+        "hint": "Think about ASIL D code running next to QM code. Memory, Time, Comm."
+    },
+    {
+        "id": "software_unit_testing",
+        "topic": "Software Verification (Part 6)",
+        "question": "For ASIL D software, what methods are highly recommended for Unit Testing?",
+        "golden_answer": "For ASIL D, simple branch coverage is not enough. You need:\n1. **MC/DC (Modified Condition/Decision Coverage)**: To prove independence of conditions.\n2. **Boundary Value Analysis**.\n3. **Fault Injection** at the unit level.\n4. **Interface Testing**.",
+        "hint": "Think beyond Statement Coverage. MC/DC is key."
+    },
+    {
+        "id": "hardware_metrics_fmeda",
+        "topic": "Hardware Safety (Part 5)",
+        "question": "What are the two key quantitative hardware metrics required for ASIL D?",
+        "golden_answer": "1. **SPFM (Single Point Fault Metric)**: Must be > 99% for ASIL D. Measures coverage of single faults.\n2. **LFM (Latent Fault Metric)**: Must be > 90% for ASIL D. Measures coverage of latent (double) faults.\n\nAlso, the PMHF (Probabilistic Metric for Random Hardware Failures) must be < 10^-8 h^-1 (10 FIT).",
+        "hint": "SPFM and LFM."
+    },
+    {
+        "id": "latent_fault_definition",
+        "topic": "Hardware Safety (Part 5)",
+        "question": "What is a 'Latent Fault' in the context of ISO 26262?",
+        "golden_answer": "A Latent Fault is a multiple-point fault where the first fault is NOT detected by a safety mechanism and does not violate the safety goal alone. It lays 'dormant' until a second fault occurs, potentially leading to a hazardous event.\n\nExample: A memory bit flip in a backup safety monitor that isn't read until the primary monitor fails.",
+        "hint": "A fault that hides until a second one strikes."
+    },
+    {
+        "id": "dependent_failure_analysis",
+        "topic": "System Safety (Part 4)",
+        "question": "What is DFA (Dependent Failure Analysis) and why do we perform it?",
+        "golden_answer": "DFA identifies Common Cause Failures (CCF) and Cascading Failures that could violate independence/redundancy.\n\nIt proves that your 'Redundant' channels (e.g., Main CPU and Safety MCU) don't share a single point of failure like a shared voltage regulator, clock, or thermal environment.",
+        "hint": "Checking if your redundant systems are truly independent."
+    },
+    {
+        "id": "tool_qualification",
+        "topic": "Supporting Processes (Part 8)",
+        "question": "When is Software Tool Qualification required?",
+        "golden_answer": "It is required if the tool can introduce or fail to detect errors (TI - Tool Impact) AND we don't have a high confidence that the error will be detected by other means (TD - Tool Detection).\n\nClassified as TCL1 (No qual needed) to TCL3 (High qual needed). For ASIL D code generators (Compiler/Linker), qualification is mandatory.",
+        "hint": "TI (Impact) and TD (Detection Levels)."
     }
 ]
