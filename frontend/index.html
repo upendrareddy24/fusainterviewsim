@@ -140,6 +140,12 @@
                         🔍 SHOW ANSWER
                     </button>
 
+                    <button onclick="sendHint()"
+                        class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-semibold transition-colors whitespace-nowrap"
+                        title="Get a Hint">
+                        💡 HINT
+                    </button>
+
                     <button onclick="sendNextQuestion()"
                         class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-lg font-semibold transition-colors whitespace-nowrap"
                         title="Get Next Question">
@@ -213,6 +219,8 @@
             if (e.key === 'Enter') sendMessage();
         });
 
+        let lastSetupData = null;
+
         async function startSession() {
             const role = document.getElementById('setup-role').value;
             const focus = document.getElementById('setup-focus').value;
@@ -220,23 +228,19 @@
             const exp = document.getElementById('setup-exp').value;
 
             document.getElementById('config-modal').style.display = 'none';
+            lastSetupData = { target_role: role, topic_focus: focus, target_level: level, experience_years: parseInt(exp) };
 
             try {
                 const res = await fetch(`${API_BASE}/session/start`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        target_role: role,
-                        topic_focus: focus,
-                        target_level: level,
-                        experience_years: parseInt(exp)
-                    })
+                    body: JSON.stringify(lastSetupData)
                 });
                 const data = await res.json();
                 sessionId = data.session_id;
                 addMessage('interviewer', data.interviewer_message);
             } catch (e) {
-                alert("Connection Error. Ensure Backed is running.");
+                alert("Connection Error. Ensure Backend is running.");
                 location.reload();
             }
         }
@@ -249,7 +253,8 @@
                 inputField.value = '';
                 addMessage('candidate', text);
             } else {
-                addMessage('candidate', "Please show me the answer.");
+                const label = text.toLowerCase().includes("answer") ? "🔍 Show Answer" : (text.toLowerCase().includes("hint") ? "💡 Hint" : "⏩ Next Question");
+                addMessage('candidate', label);
             }
 
             try {
@@ -258,11 +263,22 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ candidate_message: text })
                 });
+
+                if (res.status === 404 && lastSetupData) {
+                    console.log("Session lost. Recovering...");
+                    await startSession();
+                    return sendMessage(text);
+                }
+
                 const data = await res.json();
                 addMessage('interviewer', data.interviewer_message);
             } catch (e) {
-                addMessage('system', "Error connecting to AI.");
+                addMessage('interviewer', "Connection Error. Check your uplink.");
             }
+        }
+
+        function sendHint() {
+            sendMessage("Give me a hint");
         }
 
         function sendShowAnswer() {
