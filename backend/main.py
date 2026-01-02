@@ -77,7 +77,13 @@ async def respond(session_id: str, candidate_message: str = Body(...)):
     session.current_state.history.append({"role": "candidate", "content": candidate_message})
     
     # AI response
-    response = engine.get_interviewer_response(session, candidate_message)
+    try:
+        response = engine.get_interviewer_response(session, candidate_message)
+    except Exception as e:
+        print(f"Engine Fatal Error: {e}")
+        # Last ditch static fallback
+        response = "Interesting. What else? (System is running in Safe Mode)"
+
     session.current_state.history.append({"role": "interviewer", "content": response})
     
     return {"interviewer_message": response}
