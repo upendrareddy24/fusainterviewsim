@@ -10,6 +10,13 @@ class InterviewEngine:
     def __init__(self):
         print("Initializing FuSa Interview Engine...")
         self.mode = "CHECKING"
+        self.questions = {
+            "iso26262": [],
+            "sotif": [],
+            "cybersecurity": [],
+            "stpa": [],
+            "v_and_v": []
+        }
         
         # 1. Try Google Gemini (Primary)
         self.api_key = os.getenv("GEMINI_API_KEY")
