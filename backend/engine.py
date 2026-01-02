@@ -166,7 +166,8 @@ class InterviewEngine:
         history_len = len(session.current_state.history)
         
         # 1. Start or New Question Logic
-        if "START_ROUND" in user_input or history_len <= 1 or "next question" in user_input.lower():
+        triggers = ["start_round", "next question", "yes", "ready", "ok", "sure", "go ahead", "yep"]
+        if any(t in user_input.lower() for t in triggers) or history_len <= 1:
             # Determine topic map
             # Use loose matching against session.topic_focus (e.g. "ISO 26262 (Functional Safety)")
             focus_lower = session.topic_focus.lower()
