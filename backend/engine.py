@@ -51,16 +51,20 @@ class InterviewEngine:
             else:
                 self.mode = "STATIC"
 
-        # 3. Static Fallback
-        if self.mode == "STATIC":
-            print(">> Mode: STATIC (Offline / In-Built)")
-            self.load_static_data()
+        # 3. Static Fallback - ALWAYS Load Static Data if not exclusively Cloud
+        # This ensures that even if Cloud is ON, we might drop to static, so might as well load it OR load it on demand
+        # To be safe against "no questions loaded" error when falling back dynamically:
+        if self.mode == "STATIC" or self.mode == "FALLBACK_CHECK": 
+             print(">> Mode: STATIC (Offline / In-Built)")
+             self.load_static_data()
+             self.mode = "STATIC" # Ensure final state is valid
 
     def load_static_data(self):
         """Loads the pre-generated 'Best in Industry' offline FuSa content."""
         base_path = os.path.dirname(__file__)
         data_dir = os.path.join(base_path, "data")
         
+        # Ensure dict handles capitalization differences roughly
         self.questions = {
             "iso26262": [],
             "sotif": [],
