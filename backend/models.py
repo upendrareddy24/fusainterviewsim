@@ -16,3 +16,6 @@ class CandidateSession(BaseModel):
     resume_text: Optional[str] = None
     topic_focus: Optional[str] = "ADAS" # ADAS, Steering, Braking
     current_state: InterviewState
+
+class CandidateMessage(BaseModel):
+    candidate_message: str
