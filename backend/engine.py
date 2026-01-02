@@ -74,7 +74,7 @@ class InterviewEngine:
     def get_interviewer_response(self, session: CandidateSession, user_input: str) -> str:
         """Dispatcher for generating responses based on active mode."""
         try:
-        try:
+
             if self.mode == "GROK_API":
                 return self._generate_grok_response(session, user_input)
             elif self.mode == "CLOUD_AI":
